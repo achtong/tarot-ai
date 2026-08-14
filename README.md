@@ -12,15 +12,15 @@
 * **쿠폰 상태 라이프사이클 관리:** 쿠폰 발급(`POST`), 쿠폰 사용 및 삭제(`PUT /coupons/{id}/use`, `DELETE /coupons/{id}/`)에 대한 RESTful API 설계
 * **데이터 정합성 및 예외 처리:** 중복 사용 방지, 사용 취소 시 트랜잭션 보장 및 예외 커스터마이징
 
-### 1. 백엔드 & API Architecture
+### 2. 백엔드 & API Architecture
 * RESTful API 설계 및 구현:** API 리소스 규격에 맞춘 End-point 설계 및 전역 예외 처리 적용
 * AI 에이전트 연동:** 타로 프롬프트 파이프라인 구성 및 LLM 응답 데이터 구조화(JSON Format)
 
-### 2. 메시징 & 대용량 트래픽 처리 (Kafka & Redis)
+### 3. 메시징 & 대용량 트래픽 처리 (Kafka & Redis)
 * **Kafka 기반 비동기 이벤트 처리:** 선착순 쿠폰 발급 저장 로직을 비동기 이벤트 기반(Event-Driven)으로 분리하여 응답 대기 시간 단축
 * **Redis & Kafka 부하 분산(Load Leveling):** 순간 트래픽 스파이크 발생 시 Redis로 앞단 제어 후, Kafka Topic에 요청을 적재하여 DB 쓰기 부하를 안정적으로 제어
 
-### 3. 인프라 & 컨테이너 환경 구축
+### 4. 인프라 & 컨테이너 환경 구축
 * **Docker Compose 기반 구성:** Application, Database, **Kafka Broker 환경을 컨테이너화하여 단일 명령어로 전체 개발/운영 환경 실행 구축
 
 ---
