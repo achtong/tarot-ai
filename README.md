@@ -10,7 +10,7 @@
 
 ### 1. RESTful API 설계 및 상태 관리 (Coupon Domain)
 * **쿠폰 상태 라이프사이클 관리:** 쿠폰 발급(`POST`), 쿠폰 사용 및 삭제(`PUT /coupons/{id}/use`, `DELETE /coupons/{id}/`)에 대한 RESTful API 설계
-* **데이터 정합성 및 예외 처리:** 중복 사용 방지, 사용 취소 시 트랜잭션 보장 및 `@RestControllerAdvice` 기반 예외 커스터마이징
+* **데이터 정합성 및 예외 처리:** 중복 사용 방지, 사용 취소 시 트랜잭션 보장 및 예외 커스터마이징
 
 ### 1. 백엔드 & API Architecture
 * RESTful API 설계 및 구현:** API 리소스 규격에 맞춘 End-point 설계 및 전역 예외 처리 적용
