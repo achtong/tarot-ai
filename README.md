@@ -29,6 +29,6 @@
 * **Language / Framework:** Java 17, Spring Boot
 * **Front** : React
 * **Database:** MySQL, Redis
-* * **Message Broker:** **Apache Kafka**
+* **Message Broker:** Kafka
 * **DevOps / Infra:** Docker, Docker Compose
 * **AI:** Claude
