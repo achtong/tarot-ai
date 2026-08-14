@@ -26,7 +26,7 @@
 ---
 
 ## 🏗️ Tech Stack
-* **Language / Framework:** Java 17, Spring Boot
+* **Language / Framework:** Java 21, Spring Boot
 * **Front** : React
 * **Database:** MySQL, Redis
 * **Message Broker:** Kafka
