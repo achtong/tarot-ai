@@ -26,9 +26,9 @@
 ---
 
 ## 🏗️ Tech Stack
-* **Language / Framework:** Java 21, Spring Boot
+* **Language / Framework:** Java 21, Spring Boot, Gradle
 * **Front** : React, Vite
 * **Database:** MySQL, Redis
-* **Message Broker:** Kafka
+* **Message Broker:** Apache Kafka
 * **DevOps / Infra:** Docker, Docker Compose
-* **AI:** Claude
+* **AI:** Claude API
