@@ -27,7 +27,7 @@
 
 ## 🏗️ Tech Stack
 * **Language / Framework:** Java 17, Spring Boot
-* **Front : React
+* **Front** : React
 * **Database:** MySQL, Redis
 * * **Message Broker:** **Apache Kafka**
 * **DevOps / Infra:** Docker, Docker Compose
