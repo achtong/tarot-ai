@@ -32,7 +32,7 @@ public class TestService {
             log.info("품절 처리 시간: {} ms",end - start);
             return false;
         }
-        DTO.setCouponCode(CouponCode);
+        DTO.setCouponCode(CouponCode); 
         testMapper.coupon(DTO); 
         long end = System.currentTimeMillis();
         log.info("쿠폰 발급 처리 시간: {} ms", end - start);
