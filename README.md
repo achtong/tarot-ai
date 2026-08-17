@@ -34,4 +34,5 @@
 * **AI:** Claude API
 
 
-MySQL 직접 INSERT : 1,000 requests / 16.3sec
+MySQL 직접 1000개 INSERT : 1,000 requests / 16.3sec
+선착순 100개에 Transactional로 100명만 남는 재고 -1씩 업데이트 후 INSERT / 26.1sec (900 실패)
