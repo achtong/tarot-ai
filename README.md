@@ -45,9 +45,9 @@
 - 성공: 100
 - 실패: 900
 - 방식:
-  coupon_stock - 1
-  재고 차감 성공 시 coupon_issue INSERT
-  @Transactional 적용
+  1. 쿠폰 재고를 1개 차감
+  2. 재고 차감 성공 시 `coupon_issue` 테이블에 발급 내역 INSERT
+  3. 재고 차감 및 발급 내역 저장에 `@Transactional` 적용
 
 - React 전체 요청 시간: 약 26 sec
 - HTTP 요청 1건: 약 300 ms
