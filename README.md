@@ -45,9 +45,9 @@
 - 성공: 100
 - 실패: 900
 - 방식:
-  1. coupon_stock - 1
-  2. 재고 차감 성공 시 coupon_issue INSERT
-  3. @Transactional 적용
+  coupon_stock - 1
+  재고 차감 성공 시 coupon_issue INSERT
+  @Transactional 적용
 
 - React 전체 요청 시간: 약 26 sec
 - HTTP 요청 1건: 약 300 ms
