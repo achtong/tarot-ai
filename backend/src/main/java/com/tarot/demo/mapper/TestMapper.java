@@ -11,4 +11,5 @@ import com.tarot.demo.DTO.CouponIssueDTO;
 public interface TestMapper {
     List<CouponDTO> findAll();
     void coupon(CouponIssueDTO DTO);
+    int updateCouponStock(String couponCode);
 }

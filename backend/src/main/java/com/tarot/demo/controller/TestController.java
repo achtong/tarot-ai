@@ -2,6 +2,7 @@ package com.tarot.demo.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,12 +29,15 @@ public class TestController {
     }
 
     @PostMapping("/coupons/{couponCode}/issue")
-    public String issue(
+    public ResponseEntity<?> issue(
         @PathVariable String couponCode,
         @RequestBody CouponIssueDTO DTO) {
             
-            testService.coupon(DTO, couponCode);
-    
-    return "발급 성공";
-}
+            boolean success = testService.coupon(DTO, couponCode);
+            if (!success) {
+                return ResponseEntity.status(400).body("쿠폰이 모두 소진되었습니다.");
+            } 
+
+            return ResponseEntity.ok("쿠폰 발급이 완료되었습니다.");
+    }
 }

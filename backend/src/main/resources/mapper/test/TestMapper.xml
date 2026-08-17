@@ -16,4 +16,9 @@
         INSERT INTO coupon_issue (user_id, coupon_code)
         VALUES (#{userId}, #{couponCode})   
     </insert>
+    <update id="updateCouponStock" parameterType="String">
+        UPDATE coupon
+        SET coupon_stock = coupon_stock - 1
+        WHERE coupon_code = #{couponCode} AND coupon_stock <![CDATA[>]]> 0
+    </update>
 </mapper>
