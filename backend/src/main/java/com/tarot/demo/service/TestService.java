@@ -31,7 +31,7 @@ public class TestService {
             long end = System.currentTimeMillis();
             log.info("품절 처리 시간: {} ms",end - start);
             return false;
-        }
+        } 
         DTO.setCouponCode(CouponCode); 
         testMapper.coupon(DTO); 
         long end = System.currentTimeMillis();
