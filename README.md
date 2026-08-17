@@ -33,7 +33,22 @@
 * **DevOps / Infra:** Docker, Docker Compose
 * **AI:** Claude API
 
+## 백엔드 테스트 기록용
+### 1. MySQL 직접 INSERT
+- 요청 수: 1,000 requests
+- 처리 시간: 약 16.3 sec
+- 방식: MySQL에 직접 INSERT
 
-MySQL 직접 1000개 INSERT : 1,000 requests / 16.3sec
+### 2. 쿠폰 선착순 + 재고 차감
+- 요청 수: 1,000 requests
+- 쿠폰 재고: 100
+- 성공: 100
+- 실패: 900
+- 방식:
+  1. coupon_stock - 1
+  2. 재고 차감 성공 시 coupon_issue INSERT
+  3. @Transactional 적용
 
-선착순 100개에 Transactional로 100명만 남는 재고 -1씩 업데이트 후 INSERT / 26.1sec (900 실패)
+- React 전체 요청 시간: 약 26 sec
+- HTTP 요청 1건: 약 300 ms
+- Service 내부 처리: 약 3~40 ms
