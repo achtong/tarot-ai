@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tarot.demo.mapper.TestMapper">
+
+    <select id="findAll" resultType="com.tarot.demo.DTO.CouponDTO">
+        SELECT
+            coupon_code AS couponCode,
+            coupon_name AS couponName,
+            coupon_stock AS couponStock
+        FROM coupon
+    </select>
+    <insert id="coupon" parameterType="com.tarot.demo.DTO.CouponIssueDTO">
+        INSERT INTO coupon_issue (user_id, coupon_code)
+        VALUES (#{userId}, #{couponCode})   
+    </insert>
+</mapper>

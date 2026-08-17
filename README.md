@@ -32,3 +32,6 @@
 * **Message Broker:** Apache Kafka
 * **DevOps / Infra:** Docker, Docker Compose
 * **AI:** Claude API
+
+
+MySQL 직접 INSERT : 1,000 requests / 16.3sec

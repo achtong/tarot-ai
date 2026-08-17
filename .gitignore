@@ -1,24 +1,44 @@
-# Compiled class file
-*.class
+# =========================
+# Spring Boot / Gradle
+# =========================
 
-# Log file
+.gradle/
+build/
+bin/
+!gradle/wrapper/gradle-wrapper.jar
+
+# =========================
+# React / Vite
+# =========================
+
+node_modules/
+dist/
+
+# =========================
+# IDE
+# =========================
+
+.vscode/
+.idea/
+*.iml
+
+# =========================
+# Logs
+# =========================
+
 *.log
 
-# BlueJ files
-*.ctxt
+# =========================
+# Environment / Secrets
+# =========================
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+.env
+.env.*
+!.env.example
 
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
+# =========================
+# OS
+# =========================
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+.DS_Store
+Thumbs.db
