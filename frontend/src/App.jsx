@@ -4,7 +4,7 @@ import axios from "axios";
 function App() {
   const [coupons, setCoupons] = useState([]);
 
-  useEffect(() => {
+  const getCoupons = () => {
     axios
       .get("http://localhost:8080/api/test")
       .then((response) => {
@@ -14,6 +14,10 @@ function App() {
       .catch((error) => {
         console.error("API 호출 실패:", error);
       });
+  };
+
+  useEffect(() => {
+    getCoupons();
   }, []);
 
   const handleCouponIssue = async () => {
@@ -21,7 +25,7 @@ function App() {
 
     const requests = [];
 
-    for (let i = 1; i <= 1000; i++) {
+    for (let i = 1; i <= 10; i++) {
       requests.push(
         axios.post("http://localhost:8080/api/coupons/C001/issue", {
           userId: `user${String(i).padStart(4, "0")}`,
@@ -45,6 +49,10 @@ function App() {
     console.log("성공:", success);
     console.log("실패:", failed);
     console.log("처리 시간:", `${(end - start).toFixed(2)} ms`);
+
+    setTimeout(() => {
+      getCoupons();
+    }, 500);
   };
 
   return (
