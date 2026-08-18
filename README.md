@@ -65,8 +65,8 @@
 - 요청 수: 1,000 requests
 - 성공: 100
 - 실패: 900
-- HTTP 전체 응답 처리 시간: 약 1.1 sec
-- Kafka Consumer 처리 시간: 약 1.1 sec
+- HTTP 전체 응답 처리 시간: 약 1.11 sec
+- Kafka Consumer 처리 시간: 약 1.09 sec
 
 - 방식:
   1. Redis Lua Script를 이용해 쿠폰 재고를 원자적으로 차감
