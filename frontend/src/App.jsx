@@ -25,7 +25,7 @@ function App() {
 
     const requests = [];
 
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 1000; i++) {
       requests.push(
         axios.post("http://localhost:8080/api/coupons/C001/issue", {
           userId: `user${String(i).padStart(4, "0")}`,
@@ -52,7 +52,7 @@ function App() {
 
     setTimeout(() => {
       getCoupons();
-    }, 500);
+    }, 2000);
   };
 
   return (
