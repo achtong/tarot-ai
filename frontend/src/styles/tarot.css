@@ -1,0 +1,199 @@
+:root {
+  --bg-color: #0f0c1b;
+  --main-glow: rgba(255, 215, 0, 0.6);
+  --sub-glow: rgba(100, 200, 255, 0.6);
+}
+
+.tarot-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+  color: #ffffff;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* 상단 가이드 */
+.guide-text {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffd700;
+  margin-bottom: 24px;
+  height: 30px;
+}
+
+/* 슬롯 배치 */
+.slots-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.sub-slots {
+  display: flex;
+  gap: 16px;
+}
+
+.slot {
+  border: 2px dashed #443c68;
+  border-radius: 10px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.slot.main {
+  width: 120px;
+  height: 180px;
+}
+.slot.sub {
+  width: 90px;
+  height: 135px;
+}
+
+.slot-label {
+  position: absolute;
+  top: -22px;
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+/* 반짝이는 활성화 효과 */
+.slot.active-main {
+  border-color: #ffd700;
+  box-shadow: 0 0 15px var(--main-glow);
+  animation: pulse-main 1.5s infinite alternate;
+}
+
+.slot.active-sub {
+  border-color: #64c8ff;
+  box-shadow: 0 0 15px var(--sub-glow);
+  animation: pulse-sub 1.5s infinite alternate;
+}
+
+@keyframes pulse-main {
+  from {
+    box-shadow: 0 0 5px var(--main-glow);
+  }
+  to {
+    box-shadow: 0 0 20px var(--main-glow);
+  }
+}
+@keyframes pulse-sub {
+  from {
+    box-shadow: 0 0 5px var(--sub-glow);
+  }
+  to {
+    box-shadow: 0 0 20px var(--sub-glow);
+  }
+}
+
+/* 3D Flip 애니메이션 */
+.card-3d {
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 8px;
+  text-align: center;
+}
+
+.card-back.main-back {
+  background: linear-gradient(135deg, #2a0845, #6441a5);
+  border: 2px solid #ffd700;
+}
+
+.card-back.sub-back {
+  background: linear-gradient(135deg, #09203f, #537895);
+  border: 2px solid #64c8ff;
+}
+
+.card-front {
+  background: #ffffff;
+  color: #111;
+  transform: rotateY(180deg);
+  border: 2px solid #333;
+}
+
+/* 하단 카드 덱 */
+.deck-wrapper {
+  position: relative;
+  width: 320px;
+  height: 140px;
+}
+
+.deck-card {
+  position: absolute;
+  width: 70px;
+  height: 110px;
+  border-radius: 6px;
+  cursor: pointer;
+  transform-origin: bottom center;
+  transition: all 0.3s ease;
+  bottom: 0;
+  left: 125px;
+}
+
+.deck-card.major-deck {
+  background: linear-gradient(135deg, #2a0845, #6441a5);
+  border: 1px solid #ffd700;
+}
+
+.deck-card.minor-deck {
+  background: linear-gradient(135deg, #09203f, #537895);
+  border: 1px solid #64c8ff;
+}
+
+.deck-card:hover {
+  transform: translateY(-20px) scale(1.1) !important;
+  z-index: 100 !important;
+}
+
+/* 결과 버튼 */
+.result-btn {
+  margin-top: 24px;
+  padding: 12px 28px;
+  font-size: 1rem;
+  font-weight: bold;
+  background: linear-gradient(45deg, #8a2be2, #4a00e0);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.8);
+  transition: transform 0.2s;
+}
+
+.result-btn:hover {
+  transform: scale(1.05);
+}
