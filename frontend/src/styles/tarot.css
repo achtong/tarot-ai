@@ -29,13 +29,15 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
+  /* 💡 메인 카드와 서브 카드들 사이의 위아래 간격을 16px -> 28px로 살짝 넓힘 */
+  gap: 28px;
+  margin-bottom: 32px;
 }
 
 .sub-slots {
   display: flex;
-  gap: 16px;
+  /* 💡 서브 카드 1과 서브 카드 2 사이의 좌우 간격을 16px -> 24px로 살짝 넓힘 */
+  gap: 24px;
 }
 
 .slot {
@@ -46,6 +48,7 @@
   justify-content: center;
   align-items: center;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .slot.main {
