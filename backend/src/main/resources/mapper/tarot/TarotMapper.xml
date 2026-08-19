@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.tarot.demo.tarot.mapper.TarotMapper">
+    <select id="selectAllCards" resultType="com.tarot.demo.tarot.dto.TarotCardDTO">
+        SELECT 
+            card_code    AS cardCode,
+            card_type    AS cardType,
+            suit,
+            card_number  AS cardNumber,
+            name_kr      AS nameKr,
+            name_en      AS nameEn,
+            image_url    AS imageUrl,
+            keywords_up  AS keywordsUp,
+            summary
+        FROM tarot_card
+    </select>
+</mapper>

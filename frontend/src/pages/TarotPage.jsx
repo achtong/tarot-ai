@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import TarotGuide from "../components/TarotGuide";
 import TarotSlots from "../components/TarotSlots";
 import TarotDeck from "../components/TarotDeck";
@@ -56,7 +56,7 @@ export default function TarotPage() {
 
   return (
     <div className="tarot-container">
-      <h1>🔮 AI Tarot Reading</h1>
+      <h1>AI 타로 분석</h1>
 
       {/* 1. 가이드 문구 */}
       <TarotGuide step={step} />

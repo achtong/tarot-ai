@@ -221,3 +221,12 @@
 .result-btn:hover {
   transform: scale(1.05);
 }
+
+.tarot-container h1 {
+  color: #ffffff; /* 💡 기본 하얀색 보장 */
+  font-size: 2rem;
+  font-weight: 800;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
