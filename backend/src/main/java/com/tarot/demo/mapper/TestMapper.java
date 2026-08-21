@@ -12,4 +12,5 @@ public interface TestMapper {
     List<CouponDTO> findAll();
     void coupon(CouponIssueDTO DTO);
     int updateCouponStock(String couponCode);
+    int countCoupon(CouponIssueDTO dto);
 }

@@ -90,6 +90,10 @@ public class TestService {
         return true;
     }
 
+    public int countCoupon (CouponIssueDTO dto) {
+        return testMapper.countCoupon(dto);
+    }
+
     
 
 }

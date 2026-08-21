@@ -21,4 +21,10 @@
         SET coupon_stock = coupon_stock - 1
         WHERE coupon_code = #{couponCode} AND coupon_stock <![CDATA[>]]> 0
     </update>
+    <select id="countCoupon" parameterType="com.tarot.demo.DTO.CouponIssueDTO" resultType="int">
+        SELECT
+            count(*)
+        FROM coupon_issue
+        WHERE coupon_code = #{couponCode} and user_id = #{userId}
+    </select>
 </mapper>

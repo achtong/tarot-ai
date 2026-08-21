@@ -43,8 +43,6 @@ public class CouponKafkaConsumer {
             throw new IllegalStateException("DB 재고 차감 실패");
         }
 
-        log.info("Kafka 메시지 수신: {}", message);
-
         CouponIssueDTO DTO = new CouponIssueDTO();
 
         DTO.setUserId(message.getUserId());
