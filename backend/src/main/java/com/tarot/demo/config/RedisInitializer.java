@@ -56,12 +56,16 @@ public class RedisInitializer {
 
         for (CouponDTO coupon : coupons) {
 
-            String key = "coupon:stock:" + coupon.getCouponCode();
+            String stockKey = "coupon:stock:" + coupon.getCouponCode();
+            String issuedKey = "coupon:issued:" + coupon.getCouponCode();
 
             redisTemplate.opsForValue().set(
-                    key,
+                    stockKey,
                     String.valueOf(coupon.getCouponStock())
             );
+
+            // 발급 이력도 같이 초기화 (안 지우면 예전 유저가 계속 "이미 발급받음"으로 남음)
+            redisTemplate.delete(issuedKey);
         }
     }
 }

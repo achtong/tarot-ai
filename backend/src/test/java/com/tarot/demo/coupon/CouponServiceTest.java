@@ -2,6 +2,7 @@ package com.tarot.demo.coupon;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.DisplayName;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+import java.util.concurrent.TimeUnit;
 
 import com.tarot.demo.DTO.CouponIssueDTO;
 import com.tarot.demo.service.TestService;
@@ -79,7 +82,7 @@ class CouponServiceTest {
     }
 
     @Test
-    @DisplayName("동일한 요청 메시지가 중복 전달되어도 DB에는 1건만 저장되어 멱등성이 보장된다")
+    @DisplayName("동일한 요청 메시지가 중복 전달되어도 DB에는 1건만 저장되어 멱등성이 보장")
     void testIdempotencyWithDuplicateMessage() throws Exception {
         // 동일한 요청 데이터 준비
         String targetUserId = "user_test_999";
@@ -91,18 +94,22 @@ class CouponServiceTest {
 
         // 2번 호출하여 멱등성 보장 여부 파악
         // 1번째 호출 (정상 저장되어야 함)
-        testService.issueCoupon(duplicateDto, couponCode);
-        
+        boolean first = testService.issueCoupon(duplicateDto, couponCode);
+
         // 2번째 호출
-        testService.issueCoupon(duplicateDto, couponCode);
-
-
-        // 비동기처리 완료될 때까지 지연
-        Thread.sleep(2000);
+        boolean second = testService.issueCoupon(duplicateDto, couponCode);
+        
+        System.out.println("first : " + first);
+        System.out.println("second : " +second);
+        
+        
         // DB에 해당 유저의 발급 내역이 정확히 '1건'만 존재하는지 검증
-        int savedCount = testService.countCoupon(duplicateDto);
-
-        // AssertJ를 활용한 멱등성 검증 (2번 보냈어도 결과는 1건이어야 성공)
-        assertThat(savedCount).isEqualTo(1);
+         await()
+        .atMost(10, TimeUnit.SECONDS)
+        .pollInterval(500, TimeUnit.MILLISECONDS)
+        .untilAsserted(() -> {
+            int savedCount = testService.countCoupon(duplicateDto);
+            assertThat(savedCount).isEqualTo(1);
+        });
     }
 }

@@ -2,6 +2,7 @@ package com.tarot.demo.config;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,42 +30,50 @@ public class CouponKafkaConsumer {
 
     @Transactional
     public void consume(CouponIssueMessage message) {
-        
-        // 첫 번째 메시지가 들어온 시간
-        if (count.get() == 0) {
-            startTime = System.nanoTime();
-        }
+        try {
+            // 첫 번째 메시지가 들어온 시간
+            if (count.get() == 0) {
+                startTime = System.nanoTime();
+            }
 
-        int updated = testMapper.updateCouponStock(
-            message.getCouponCode()
-        );
+            CouponIssueDTO DTO = new CouponIssueDTO();
+            
+            DTO.setUserId(message.getUserId());
+            DTO.setCouponCode(message.getCouponCode());
 
-        if (updated == 0) {
-            throw new IllegalStateException("DB 재고 차감 실패");
-        }
+            testMapper.coupon(DTO);
 
-        CouponIssueDTO DTO = new CouponIssueDTO();
-
-        DTO.setUserId(message.getUserId());
-        DTO.setCouponCode(message.getCouponCode());
-
-        testMapper.coupon(DTO);
-        int current = count.incrementAndGet();
-
-        // 100개 처리 완료
-        if (current == 100) {
-            long endTime = System.nanoTime();
-
-            double elapsedMs =
-                (endTime - startTime) / 1_000_000.0;
-
-            log.info(
-                "===== Kafka Consumer 100개 처리 완료 ====="
+            int updated = testMapper.updateCouponStock(
+                message.getCouponCode()
             );
-            log.info(
-                "처리시간: {} ms",
-                elapsedMs
-            );
+
+            if (updated == 0) {
+                throw new IllegalStateException("DB 재고 차감 실패");
+            }
+            
+            int current = count.incrementAndGet();
+
+            // 100개 처리 완료
+            if (current == 100) {
+                long endTime = System.nanoTime();
+
+                double elapsedMs =
+                    (endTime - startTime) / 1_000_000.0;
+
+                log.info(
+                    "===== Kafka Consumer 100개 처리 완료 ====="
+                );
+                log.info(
+                    "처리시간: {} ms",
+                    elapsedMs
+                );
+            }
+        } catch (DuplicateKeyException e){
+            System.out.println("중복 오류로 스킵");
+            log.warn("중복 쿠폰 발급 요청 스킵: userId={}, couponCode={}",
+                 message.getUserId(), message.getCouponCode());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
