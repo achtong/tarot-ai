@@ -40,36 +40,21 @@
 - **DevOps / Infra:** Docker, Docker Compose
 - **AI:** Claude API
 
-## 백엔드 테스트 기록용
+## 성능 개선 과정
 
-### 1. MySQL 직접 INSERT
+| 단계 | 방식 | 처리 시간 | 비고 |
+|---|---|---|---|
+| 1차 | MySQL 직접 INSERT | 16.3초 | 기준선(baseline) |
+| 2차 | Redis Lua Script 재고 차감 + `@Transactional` 동기 처리 | 26초 | 재고 차감(Redis)과 DB INSERT를 하나의 트랜잭션 흐름 안에서 동기적으로 처리하다 보니, 1,000건 요청이 각각 DB 쓰기가 끝날 때까지 순차적으로 대기하며 지연 누적 |
+| 3차 | Redis Lua Script + Kafka 비동기 처리 | 1.11초 | Redis 재고 차감과 DB 저장을 Kafka로 분리하여, 클라이언트는 재고 차감 결과만 즉시 응답받고 DB 처리는 Consumer가 비동기로 수행 |
 
-- 요청 수: 1,000 requests
-- 처리 시간: 약 16.3 sec
-- 방식: MySQL에 직접 INSERT
+**Kafka 도입 배경**
 
-### 2. Redis + Transaction
+Redis Lua Script 이후 이어지는 DB INSERT/UPDATE까지 
+같은 요청 흐름 안에서 동기적으로 처리하다 보니, 1,000건의 요청이 각각 DB 쓰기가 완료될 때까지 응답을 기다리며 순차 처리되어
+전체 응답 시간이 26초까지 늘어나는 문제가 있었음.
 
-- 요청 수: 1,000 requests
-- 쿠폰 재고: 100
-- 성공: 100
-- 실패: 900
-- HTTP 전체 응답 처리 시간: 약 26 sec
-- 방식:
-  1. 쿠폰 재고를 1개 차감
-  2. 재고 차감 성공 시 `coupon_issue` 테이블에 발급 내역 INSERT
-  3. 재고 차감 및 발급 내역 저장에 `@Transactional` 적용
-
-### 3. Redis Lua + Kafka
-
-- 요청 수: 1,000 requests
-- 성공: 100
-- 실패: 900
-- HTTP 전체 응답 처리 시간: 약 1.11 sec
-- Kafka Consumer 처리 시간: 약 1.09 sec
-
-- 방식:
-  1. Redis Lua Script를 이용해 쿠폰 재고를 원자적으로 차감
-  2. 재고 차감 성공 시 Kafka로 발급 요청 전달
-  3. Kafka Consumer에서 MySQL 처리
-  4. DB 작업에 `@Transactional` 적용
+이를 해결하기 위해 Redis 재고 차감과 DB 저장 로직을 Kafka로 분리.
+클라이언트는 Redis 재고 차감 결과만 즉시 응답받고, 실제 DB INSERT/UPDATE는
+Kafka Consumer가 백그라운드에서 비동기로 처리하도록 하여
+**HTTP 응답 시간을 26초 → 1.11초로 대폭 단축**함.
