@@ -1,4 +1,4 @@
-# tarot-ai
+# AI 타로 분석 & 선착순 쿠폰 발급 서비스
 
 ## 프로젝트 소개 (개발 진행 중)
 사용자가 입력한 질문이나 상황을 바탕으로 AI 에이전트가 타로 카드를 추천하고,
@@ -26,7 +26,7 @@
 
 ### 4. 인프라 & 컨테이너 환경 구축
 
-- **Docker Compose 기반 구성:** Application, Database, \*\*Kafka Broker 환경을 컨테이너화하여 단일 명령어로 전체 개발/운영 환경 실행 구축
+- **Docker Compose 기반 구성:** Application, Database, Kafka Broker 환경을 컨테이너화하여 단일 명령어로 전체 개발/운영 환경 실행 구축
 
 ---
 
