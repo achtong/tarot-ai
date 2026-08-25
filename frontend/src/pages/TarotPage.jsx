@@ -47,14 +47,17 @@ export default function TarotPage() {
         main: {
           type: cards[0].cardType,
           name: cards[0].nameEn,
+          imageUrl: cards[0].imageUrl,
         },
         sub1: {
           type: cards[1].cardType,
           name: cards[1].nameEn,
+          imageUrl: cards[1].imageUrl,
         },
         sub2: {
           type: cards[2].cardType,
           name: cards[2].nameEn,
+          imageUrl: cards[2].imageUrl,
         },
       };
 
@@ -63,9 +66,7 @@ export default function TarotPage() {
       setStep(5);
       // 순차적 뒤집기
       setTimeout(() => setFlipped((prev) => ({ ...prev, main: true })), 300);
-
       setTimeout(() => setFlipped((prev) => ({ ...prev, sub1: true })), 900);
-
       setTimeout(() => setFlipped((prev) => ({ ...prev, sub2: true })), 1500);
     } catch (error) {
       console.error("카드 조회 실패:", error);

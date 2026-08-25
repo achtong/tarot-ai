@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function CardSlot({
   type,
   label,
@@ -25,8 +23,13 @@ export default function CardSlot({
             </div>
             {/* 카드 앞면 */}
             <div className="card-face card-front">
-              <span className="card-type">{cardData?.type}</span>
-              <span className="card-title">{cardData?.name}</span>
+              {cardData?.imageUrl && (
+                <img
+                  src={cardData.imageUrl}
+                  alt={cardData.name}
+                  className="tarot-card-image"
+                />
+              )}
             </div>
           </div>
         </div>
