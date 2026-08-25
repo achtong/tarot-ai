@@ -3,6 +3,7 @@ import TarotGuide from "../components/TarotGuide";
 import TarotSlots from "../components/TarotSlots";
 import TarotDeck from "../components/TarotDeck";
 import "../styles/tarot.css";
+import axios from "axios";
 
 export default function TarotPage() {
   const [step, setStep] = useState(1);
@@ -38,20 +39,37 @@ export default function TarotPage() {
 
   // AI 결과 요청 & 카드 Flip 애니메이션 실행
   const handleRevealResults = async () => {
-    setStep(5);
+    try {
+      const response = await axios.get("http://localhost:8080/api/tarot/3card");
+      const cards = response.data;
 
-    // Mock API 데이터 (추후 Spring Boot API 연동)
-    const mockResponse = {
-      main: { type: "MAJOR", name: "The Lovers" },
-      sub1: { type: "MINOR", name: "2 of Cups" },
-      sub2: { type: "MINOR", name: "8 of Swords" },
-    };
-    setCardsData(mockResponse);
+      const responseData = {
+        main: {
+          type: cards[0].cardType,
+          name: cards[0].nameEn,
+        },
+        sub1: {
+          type: cards[1].cardType,
+          name: cards[1].nameEn,
+        },
+        sub2: {
+          type: cards[2].cardType,
+          name: cards[2].nameEn,
+        },
+      };
 
-    // 순차적 뒤집기
-    setTimeout(() => setFlipped((prev) => ({ ...prev, main: true })), 300);
-    setTimeout(() => setFlipped((prev) => ({ ...prev, sub1: true })), 900);
-    setTimeout(() => setFlipped((prev) => ({ ...prev, sub2: true })), 1500);
+      setCardsData(responseData);
+
+      setStep(5);
+      // 순차적 뒤집기
+      setTimeout(() => setFlipped((prev) => ({ ...prev, main: true })), 300);
+
+      setTimeout(() => setFlipped((prev) => ({ ...prev, sub1: true })), 900);
+
+      setTimeout(() => setFlipped((prev) => ({ ...prev, sub2: true })), 1500);
+    } catch (error) {
+      console.error("카드 조회 실패:", error);
+    }
   };
 
   return (

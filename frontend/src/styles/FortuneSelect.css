@@ -1,0 +1,175 @@
+.fortune-select-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  box-sizing: border-box;
+  background: #f8f6fa;
+}
+
+.fortune-select-container {
+  width: 100%;
+  max-width: 680px;
+}
+
+/* 상단 영역 */
+.fortune-header {
+  margin-bottom: 40px;
+}
+
+.fortune-label {
+  display: inline-block;
+  margin-bottom: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: #8b7a96;
+}
+
+.fortune-header h1 {
+  margin: 0;
+  font-size: 38px;
+  line-height: 1.35;
+  font-weight: 700;
+  color: #29232d;
+}
+
+.fortune-header p {
+  margin: 18px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #8a838d;
+}
+
+/* 운세 선택 카드 */
+.fortune-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fortune-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  padding: 22px 24px;
+
+  border: 1px solid #e5dfe8;
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  cursor: pointer;
+  text-align: left;
+
+  box-sizing: border-box;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.fortune-card:hover {
+  transform: translateY(-3px);
+
+  border-color: #cdbed3;
+
+  box-shadow: 0 8px 24px rgba(60, 45, 65, 0.08);
+}
+
+.fortune-card:active {
+  transform: translateY(-1px);
+}
+
+/* 아이콘 */
+.fortune-card-icon {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 18px;
+
+  border-radius: 15px;
+
+  background: #f5f1f7;
+
+  font-size: 28px;
+
+  flex-shrink: 0;
+}
+
+/* 텍스트 */
+.fortune-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  flex: 1;
+}
+
+.fortune-card-text strong {
+  font-size: 18px;
+  font-weight: 600;
+  color: #302936;
+}
+
+.fortune-card-text span {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #918b94;
+}
+
+/* 오른쪽 화살표 */
+.fortune-card-arrow {
+  margin-left: 15px;
+
+  font-size: 22px;
+  font-weight: 300;
+
+  color: #aaa1ad;
+
+  transition: transform 0.2s ease;
+}
+
+.fortune-card:hover .fortune-card-arrow {
+  transform: translateX(4px);
+}
+
+/* 모바일 */
+@media (max-width: 600px) {
+  .fortune-select-page {
+    align-items: flex-start;
+    padding-top: 80px;
+  }
+
+  .fortune-header h1 {
+    font-size: 32px;
+  }
+
+  .fortune-card {
+    padding: 18px;
+  }
+
+  .fortune-card-icon {
+    width: 48px;
+    height: 48px;
+
+    margin-right: 14px;
+
+    font-size: 24px;
+  }
+
+  .fortune-card-text strong {
+    font-size: 16px;
+  }
+
+  .fortune-card-text span {
+    font-size: 12px;
+  }
+}

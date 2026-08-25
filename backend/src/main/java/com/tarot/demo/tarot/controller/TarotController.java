@@ -14,7 +14,12 @@ public class TarotController {
     private final TarotService tarotService;
 
     @GetMapping("card")
-     public List<TarotCardDTO> selectAllCards() {
+    public List<TarotCardDTO> selectAllCards() {
         return tarotService.selectAllCards();
+    }
+
+    @GetMapping("3card")
+    public List<TarotCardDTO> select3Cards() {
+        return tarotService.select3Cards();
     }
 }
