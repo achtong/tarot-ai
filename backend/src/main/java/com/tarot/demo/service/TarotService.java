@@ -1,4 +1,4 @@
-package com.tarot.demo.tarot.service;
+package com.tarot.demo.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,9 +7,8 @@ import java.util.Set;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tarot.demo.tarot.dto.TarotCardDTO;
-import com.tarot.demo.tarot.mapper.TarotMapper;
+import com.tarot.demo.DTO.TarotCardDTO;
+import com.tarot.demo.mapper.TarotMapper;
 
 import lombok.RequiredArgsConstructor;
 import tools.jackson.databind.ObjectMapper;

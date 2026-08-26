@@ -8,7 +8,10 @@ export default function CardSlot({
 }) {
   return (
     <div
-      className={`slot ${type} ${isActive ? (type === "main" ? "active-main" : "active-sub") : ""}`}
+      /* 💡 isFlipped가 false(뒷면)일 때 is-back 클래스 추가 */
+      className={`slot ${type} ${!isFlipped ? "is-back" : "is-front"} ${
+        isActive ? (type === "main" ? "active-main" : "active-sub") : ""
+      }`}
     >
       <span className="slot-label">{label}</span>
 
@@ -23,12 +26,17 @@ export default function CardSlot({
             </div>
             {/* 카드 앞면 */}
             <div className="card-face card-front">
-              {cardData?.imageUrl && (
-                <img
-                  src={cardData.imageUrl}
-                  alt={cardData.name}
-                  className="tarot-card-image"
-                />
+              <div className="card-image-wrapper">
+                {cardData?.imageUrl && (
+                  <img
+                    src={cardData.imageUrl}
+                    alt={cardData.name}
+                    className="tarot-card-image"
+                  />
+                )}
+              </div>
+              {cardData?.name && (
+                <div className="card-name-area">{cardData?.name}</div>
               )}
             </div>
           </div>

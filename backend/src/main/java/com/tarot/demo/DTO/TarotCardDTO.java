@@ -1,4 +1,4 @@
-package com.tarot.demo.tarot.dto;
+package com.tarot.demo.DTO;
 
 import lombok.Data;
 

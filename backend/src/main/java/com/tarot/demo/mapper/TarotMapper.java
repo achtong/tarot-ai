@@ -1,10 +1,10 @@
-package com.tarot.demo.tarot.mapper;
+package com.tarot.demo.mapper;
 
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.tarot.demo.tarot.dto.TarotCardDTO;
+import com.tarot.demo.DTO.TarotCardDTO;
 
 @Mapper
 public interface TarotMapper {

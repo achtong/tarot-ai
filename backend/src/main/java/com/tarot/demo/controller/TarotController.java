@@ -1,10 +1,12 @@
-package com.tarot.demo.tarot.controller;
+package com.tarot.demo.controller;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.tarot.demo.tarot.dto.TarotCardDTO;
-import com.tarot.demo.tarot.service.TarotService;
+
+import com.tarot.demo.DTO.TarotCardDTO;
+import com.tarot.demo.service.TarotService;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController

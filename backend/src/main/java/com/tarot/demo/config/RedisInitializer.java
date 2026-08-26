@@ -6,9 +6,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.tarot.demo.DTO.CouponDTO;
+import com.tarot.demo.DTO.TarotCardDTO;
+import com.tarot.demo.mapper.TarotMapper;
 import com.tarot.demo.mapper.TestMapper;
-import com.tarot.demo.tarot.dto.TarotCardDTO;
-import com.tarot.demo.tarot.mapper.TarotMapper;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

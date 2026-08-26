@@ -46,17 +46,17 @@ export default function TarotPage() {
       const responseData = {
         main: {
           type: cards[0].cardType,
-          name: cards[0].nameEn,
+          name: cards[0].nameKr,
           imageUrl: cards[0].imageUrl,
         },
         sub1: {
           type: cards[1].cardType,
-          name: cards[1].nameEn,
+          name: cards[1].nameKr,
           imageUrl: cards[1].imageUrl,
         },
         sub2: {
           type: cards[2].cardType,
-          name: cards[2].nameEn,
+          name: cards[2].nameKr,
           imageUrl: cards[2].imageUrl,
         },
       };

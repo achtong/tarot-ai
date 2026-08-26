@@ -54,14 +54,18 @@
 .slot.main,
 .slot.sub {
   width: 130px;
-  height: 195px;
+  height: 250px;
 }
 
 .slot-label {
   position: absolute;
-  top: -22px;
+  top: -30px; /* 슬롯 위쪽 배치 거리 */
+  left: 50%;
+  transform: translateX(-50%); /* 중앙 정렬 */
   font-size: 0.75rem;
+  font-weight: bold;
   color: #aaa;
+  white-space: nowrap;
 }
 
 /* 반짝이는 활성화 효과 */
@@ -124,7 +128,7 @@
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
-  padding: 8px;
+  padding: 0; /* 💡 [수정] 8px -> 0으로 변경 (패딩 때문에 내부 요소가 밀려 잘림) */
   text-align: center;
 }
 
@@ -233,4 +237,61 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.card-face.card-front {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #121212;
+  border-radius: 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* 1. 이미지 영역: 자름 없이 원본 비율 전체 보장 */
+.card-image-wrapper {
+  width: 100%;
+  height: 209px; /* 💡 기존 카드 크기 유지 */
+  overflow: hidden;
+}
+
+/* 이미지가 잘리지 않고 전체가 다 보이도록 설정 */
+.tarot-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지가 잘리지 않고 크게 꽉 참 */
+  display: block;
+}
+
+/* 2. 카드 이름 영역: 하단 고정 높이 */
+.card-name-area {
+  height: 28px;
+  width: 100%;
+  background-color: #111111;
+  color: #ffd700;
+  font-size: 11px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 4px;
+  box-sizing: border-box;
+}
+
+.slot.is-back.main,
+.slot.is-back.sub {
+  height: 195px; /* 뒷면일 때의 높이 */
+}
+
+/* 3D Flip 애니메이션 시 뒷면 비율 유지 */
+.slot.is-back .card-back {
+  height: 100%;
 }
