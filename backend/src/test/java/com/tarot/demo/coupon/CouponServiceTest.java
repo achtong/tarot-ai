@@ -14,6 +14,7 @@ import static org.awaitility.Awaitility.await;
 import java.util.concurrent.TimeUnit;
 
 import com.tarot.demo.DTO.CouponIssueDTO;
+import com.tarot.demo.exception.CustomException;
 import com.tarot.demo.service.TestService;
 @SpringBootTest
 class CouponServiceTest {
@@ -47,17 +48,17 @@ class CouponServiceTest {
             dto.setUserId(String.valueOf(userId));
             executorService.submit(() -> {
                 try {
-                    boolean isIssued = testService.issueCoupon(dto, testCouponCode);
-                    
-                    if (isIssued) {
-                        successCount.incrementAndGet();
-                    } else {
-                        failCount.incrementAndGet();
-                    }
-                } catch (Exception e) {
-                    failCount.incrementAndGet();    // 재고 부족 예외 발생 시 +1
+                    testService.issueCoupon(dto, testCouponCode);
+
+                    // 예외가 발생하지 않았다면 성공
+                    successCount.incrementAndGet();
+
+                } catch (CustomException e) {
+                    // 쿠폰 재고 부족 등 예상된 실패
+                    failCount.incrementAndGet();
+
                 } finally {
-                    latch.countDown(); // 요청 1개 처리 완료 신호
+                    latch.countDown();
                 }
             });
         }
@@ -94,14 +95,10 @@ class CouponServiceTest {
 
         // 2번 호출하여 멱등성 보장 여부 파악
         // 1번째 호출 (정상 저장되어야 함)
-        boolean first = testService.issueCoupon(duplicateDto, couponCode);
+        testService.issueCoupon(duplicateDto, couponCode);
 
         // 2번째 호출
-        boolean second = testService.issueCoupon(duplicateDto, couponCode);
-        
-        System.out.println("first : " + first);
-        System.out.println("second : " +second);
-        
+        testService.issueCoupon(duplicateDto, couponCode);        
         
         // DB에 해당 유저의 발급 내역이 정확히 '1건'만 존재하는지 검증
          await()

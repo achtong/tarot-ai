@@ -32,11 +32,7 @@ public class TestController {
     public ResponseEntity<?> issue(
         @PathVariable String couponCode,
         @RequestBody CouponIssueDTO DTO) {
-            
-            boolean success = testService.issueCoupon(DTO, couponCode);
-            if (!success) {
-                return ResponseEntity.status(409).body("쿠폰이 모두 소진되었습니다.");
-            } 
+            testService.issueCoupon(DTO, couponCode);
 
             return ResponseEntity.ok("쿠폰 발급이 완료되었습니다.");
     }

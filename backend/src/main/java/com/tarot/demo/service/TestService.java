@@ -12,6 +12,8 @@ import com.tarot.demo.DTO.CouponDTO;
 import com.tarot.demo.DTO.CouponIssueDTO;
 import com.tarot.demo.DTO.CouponIssueMessage;
 import com.tarot.demo.config.CouponKafkaProducer;
+import com.tarot.demo.exception.CustomException;
+import com.tarot.demo.exception.ErrorCode;
 import com.tarot.demo.mapper.TestMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -73,7 +75,7 @@ public class TestService {
         return true;
     }
 
-    public boolean issueCoupon(CouponIssueDTO DTO, String couponCode) {
+    public void issueCoupon(CouponIssueDTO DTO, String couponCode) {
 
         String stockKey = "coupon:stock:" + couponCode;
         String issuedKey = "coupon:issued:" + couponCode;
@@ -90,7 +92,7 @@ public class TestService {
     );
 
         if (result == null || result != 1) {
-            return false;
+            throw new CustomException(ErrorCode.COUPON_SOLD_OUT);
         }
 
         CouponIssueMessage message =
@@ -100,13 +102,12 @@ public class TestService {
             );
 
         couponKafkaProducer.send(message);
-
-        return true;
     }
 
     public int countCoupon (CouponIssueDTO dto) {
         return testMapper.countCoupon(dto);
     }
+    
 
     
 
