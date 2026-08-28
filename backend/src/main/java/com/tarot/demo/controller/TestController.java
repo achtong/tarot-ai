@@ -2,6 +2,7 @@ package com.tarot.demo.controller;
 
 import java.util.List;
 
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,13 +16,13 @@ import com.tarot.demo.DTO.CouponIssueDTO;
 import com.tarot.demo.service.TestService;
 
 import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/api/")
 @RequiredArgsConstructor
 public class TestController {
 
     private final TestService testService;
+    private final ChatClient chatClient;
 
     @GetMapping("test")
      public List<CouponDTO> findAll() {
@@ -35,5 +36,15 @@ public class TestController {
             testService.issueCoupon(DTO, couponCode);
 
             return ResponseEntity.ok("쿠폰 발급이 완료되었습니다.");
+    }
+
+    @GetMapping("test-gemini")
+    public ResponseEntity<String> testGemini() {
+        String response = chatClient.prompt()
+                .user("Hello, reply with 'Gemini OK' if connection works.")
+                .call()
+                .content();
+
+        return ResponseEntity.ok(response);
     }
 }

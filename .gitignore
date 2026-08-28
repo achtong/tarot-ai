@@ -13,6 +13,7 @@ bin/
 
 node_modules/
 dist/
+/frontend/public/tarot-data/cards/*.jpg
 
 # =========================
 # IDE
@@ -42,3 +43,6 @@ dist/
 
 .DS_Store
 Thumbs.db
+
+#local
+application-local.yml

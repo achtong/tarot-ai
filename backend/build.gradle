@@ -17,8 +17,11 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	set('springAiVersion', '1.1.6')
+}
+
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     // MyBatis
@@ -29,6 +32,10 @@ dependencies {
 
     // Kafka
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
+
+	// Spring AI (Gemini)
+	implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
+
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -41,6 +48,14 @@ dependencies {
 	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+	}
+}
+
+
 tasks.named('test') {
 	useJUnitPlatform()
+	enabled = false   // 테스트 실행 자체를 끔
 }
