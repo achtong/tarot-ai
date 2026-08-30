@@ -1,4 +1,4 @@
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import "../styles/Concern.css";
 

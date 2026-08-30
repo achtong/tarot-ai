@@ -1,3 +1,4 @@
+import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import TarotGuide from "../components/TarotGuide";
 import TarotSlots from "../components/TarotSlots";
@@ -6,7 +7,11 @@ import "../styles/tarot.css";
 import axios from "axios";
 
 export default function TarotPage() {
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get("category");
+  const concern = sessionStorage.getItem("concern");
   const [step, setStep] = useState(1);
+  const [readingId, setReadingId] = useState(null);
   const [mounted, setMounted] = useState({
     main: false,
     sub1: false,
@@ -41,7 +46,10 @@ export default function TarotPage() {
   const handleRevealResults = async () => {
     try {
       const response = await axios.get("http://localhost:8080/api/tarot/3card");
-      const cards = response.data;
+      const { readingId, cards } = response.data;
+
+      // 나중에 AI 분석 요청할 때 사용
+      setReadingId(readingId);
 
       const responseData = {
         main: {
@@ -62,12 +70,21 @@ export default function TarotPage() {
       };
 
       setCardsData(responseData);
-
+      setReadingId(response.data.readingId);
       setStep(5);
       // 순차적 뒤집기
       setTimeout(() => setFlipped((prev) => ({ ...prev, main: true })), 300);
       setTimeout(() => setFlipped((prev) => ({ ...prev, sub1: true })), 900);
       setTimeout(() => setFlipped((prev) => ({ ...prev, sub2: true })), 1500);
+
+      const aiResponse = await axios.post(
+        "http://localhost:8080/api/tarot/analyze",
+        {
+          readingId: readingId,
+          category: category,
+          concern: concern,
+        },
+      );
     } catch (error) {
       console.error("카드 조회 실패:", error);
     }

@@ -7,6 +7,13 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ErrorCode {
+
+    AI_QUOTA_EXCEEDED(
+    HttpStatus.TOO_MANY_REQUESTS,
+    "AI_QUOTA_EXCEEDED",
+    "AI 서비스 요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요."
+    ),
+    
     CARD_NOT_FOUND(
         HttpStatus.NOT_FOUND,
         "CARD_NOT_FOUND",
@@ -30,6 +37,8 @@ public enum ErrorCode {
         "INTERNAL_ERROR",
         "서버 내부 오류가 발생했습니다."
     );
+
+  
 
     private final HttpStatus status;
     private final String code;
