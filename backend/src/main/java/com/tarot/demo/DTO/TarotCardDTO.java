@@ -1,8 +1,10 @@
 package com.tarot.demo.DTO;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
+@Schema(description = "Redis에서 조회해올 카드")
 public class TarotCardDTO {
     private String cardCode;
     private String cardType;

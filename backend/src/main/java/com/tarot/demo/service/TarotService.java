@@ -34,9 +34,7 @@ public class TarotService {
     private final ObjectMapper objectMapper;
     private final TarotTools tarotAnalysisTools;
 
-    public List<TarotCardDTO> selectAllCards() {
-        return tarotMapper.selectAllCards();
-    }
+    
 
     public ReadingResponseDTO select3Cards(String readingId) {
        List<TarotCardDTO> result = new ArrayList<>();
