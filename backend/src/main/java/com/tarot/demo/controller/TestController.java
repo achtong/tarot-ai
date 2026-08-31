@@ -15,10 +15,12 @@ import com.tarot.demo.DTO.CouponDTO;
 import com.tarot.demo.DTO.CouponIssueDTO;
 import com.tarot.demo.service.TestService;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/")
 @RequiredArgsConstructor
+@Hidden
 public class TestController {
 
     private final TestService testService;

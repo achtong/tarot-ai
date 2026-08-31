@@ -41,62 +41,62 @@ public class TarotService {
     public ReadingResponseDTO select3Cards(String readingId) {
        List<TarotCardDTO> result = new ArrayList<>();
 
-    // 1. Major에서 1장 랜덤
-    String majorCode = redisTemplate
-            .opsForSet()
-            .randomMember("tarot:deck:major");
+        // 1. Major에서 1장 랜덤
+        String majorCode = redisTemplate
+                .opsForSet()
+                .randomMember("tarot:deck:major");
 
-    if (majorCode == null) {
-        throw new IllegalStateException("Major 카드가 없습니다.");
-    }
+        if (majorCode == null) {
+            throw new IllegalStateException("Major 카드가 없습니다.");
+        }
 
-    TarotCardDTO mainCard = getCard(majorCode);
-    result.add(mainCard);
-
-
-    // 2. Minor에서 2장 랜덤 (중복 없음)
-    Set<String> minorCodes = redisTemplate
-            .opsForSet()
-            .distinctRandomMembers("tarot:deck:minor", 2);
-
-    if (minorCodes == null || minorCodes.size() < 2) {
-        throw new IllegalStateException(
-                "Minor 카드가 2장 이상 존재하지 않습니다."
-        );
-    }
-
-    List<TarotCardDTO> minorCards = new ArrayList<>();
-
-    for (String minorCode : minorCodes) {
-        TarotCardDTO card = getCard(minorCode);
-
-        result.add(card);
-        minorCards.add(card);
-    }
+        TarotCardDTO mainCard = getCard(majorCode);
+        result.add(mainCard);
 
 
-    // 3. readingId + 뽑힌 카드 저장
-    TarotReadingDTO reading = new TarotReadingDTO();
+        // 2. Minor에서 2장 랜덤 (중복 없음)
+        Set<String> minorCodes = redisTemplate
+                .opsForSet()
+                .distinctRandomMembers("tarot:deck:minor", 2);
 
-    reading.setMainCardCode(mainCard.getCardCode());
-    reading.setSub1CardCode(minorCards.get(0).getCardCode());
-    reading.setSub2CardCode(minorCards.get(1).getCardCode());
+        if (minorCodes == null || minorCodes.size() < 2) {
+            throw new IllegalStateException(
+                    "Minor 카드가 2장 이상 존재하지 않습니다."
+            );
+        }
 
-    try {
+        List<TarotCardDTO> minorCards = new ArrayList<>();
 
-        String json = objectMapper.writeValueAsString(reading);
+        for (String minorCode : minorCodes) {
+            TarotCardDTO card = getCard(minorCode);
 
-        redisTemplate.opsForValue().set(
-                "tarot:reading:" + readingId,
-                json,
-                Duration.ofMinutes(30)
-        );
+            result.add(card);
+            minorCards.add(card);
+        }
 
-    } catch (Exception e) {
-        throw new IllegalStateException(
-                "타로 리딩 정보를 저장하지 못했습니다.", e
-        );
-    }
+
+        // 3. readingId + 뽑힌 카드 저장
+        TarotReadingDTO reading = new TarotReadingDTO();
+
+        reading.setMainCardCode(mainCard.getCardCode());
+        reading.setSub1CardCode(minorCards.get(0).getCardCode());
+        reading.setSub2CardCode(minorCards.get(1).getCardCode());
+
+        try {
+
+            String json = objectMapper.writeValueAsString(reading);
+
+            redisTemplate.opsForValue().set(
+                    "tarot:reading:" + readingId,
+                    json,
+                    Duration.ofMinutes(30)
+            );
+
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "타로 리딩 정보를 저장하지 못했습니다.", e
+            );
+        }
 
 
         // 4. 프론트에는 readingId + 카드 정보 반환
@@ -174,17 +174,15 @@ public class TarotService {
                     사용자의 고민:
                     %s
 
-                    현재 카드:
-                    %s
+                    현재 카드 코드: %s
+                    영향 카드 코드: %s
+                    미래 카드 코드: %s
 
-                    영향 카드:
-                    %s
+                    위 정보를 바탕으로 사용자의 질문 의도를 파악하고
+                    적절한 Tarot 분석 Tool을 사용하세요.
 
-                    미래 카드:
-                    %s
-
-                    위 정보를 바탕으로 질문의 세부 의도를 파악하고
-                    적절한 Tarot 분석 Tool을 사용하여 최종 해석을 작성하세요.
+                    Tool에서 카드의 상세 정보와 의미를 조회한 뒤,
+                    그 결과를 바탕으로 최종 해석을 작성하세요.
                     """.formatted(
                         category,
                         concern,
@@ -199,28 +197,28 @@ public class TarotService {
 
                 .content();
 
-    } catch (RuntimeException e) {
+        } catch (RuntimeException e) {
 
-        Throwable cause = e;
+            Throwable cause = e;
 
-    while (cause != null) {
+        while (cause != null) {
 
-        if (cause instanceof com.google.genai.errors.ClientException clientException) {
+            if (cause instanceof com.google.genai.errors.ClientException clientException) {
 
-            if (clientException.getMessage() != null && clientException.getMessage().contains("429")) {
-                throw new CustomException(
-                        ErrorCode.AI_QUOTA_EXCEEDED
-                );
+                if (clientException.getMessage() != null && clientException.getMessage().contains("429")) {
+                    throw new CustomException(
+                            ErrorCode.AI_QUOTA_EXCEEDED
+                    );
+                }
             }
-        }
 
-        cause = cause.getCause();
-        }
+            cause = cause.getCause();
+            }
 
-        // 429가 아닌 다른 오류는 그대로 전달
-        throw e;
+            // 429가 아닌 다른 오류는 그대로 전달
+            throw e;
+        }
     }
-}
     
 
 

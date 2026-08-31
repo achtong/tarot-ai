@@ -36,6 +36,9 @@ dependencies {
 	// Spring AI (Gemini)
 	implementation 'org.springframework.ai:spring-ai-starter-model-google-genai'
 
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'

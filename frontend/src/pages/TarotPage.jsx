@@ -12,6 +12,12 @@ export default function TarotPage() {
   const concern = sessionStorage.getItem("concern");
   const [step, setStep] = useState(1);
   const [readingId, setReadingId] = useState(null);
+
+  // AI 분석 결과
+  const [analysisResult, setAnalysisResult] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisError, setAnalysisError] = useState("");
+
   const [mounted, setMounted] = useState({
     main: false,
     sub1: false,
@@ -42,14 +48,35 @@ export default function TarotPage() {
     }
   };
 
+  const handleAnalyze = async (currentReadingId) => {
+    setIsAnalyzing(true);
+    setAnalysisError("");
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/tarot/analyze",
+        { readingId: currentReadingId, category: category, concern: concern },
+      );
+      console.log("AI 분석 결과:", response.data);
+      setAnalysisResult(response.data);
+    } catch (error) {
+      console.error("AI 분석 실패:", error);
+      if (error.response?.status === 429) {
+        setAnalysisError(
+          "현재 AI 분석 요청이 많습니다. 잠시 후 다시 시도해주세요.",
+        );
+      } else {
+        setAnalysisError("AI 분석 중 오류가 발생했습니다.");
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   // AI 결과 요청 & 카드 Flip 애니메이션 실행
   const handleRevealResults = async () => {
     try {
       const response = await axios.get("http://localhost:8080/api/tarot/3card");
-      const { readingId, cards } = response.data;
-
-      // 나중에 AI 분석 요청할 때 사용
-      setReadingId(readingId);
+      const { readingId: newReadingId, cards } = response.data;
 
       const responseData = {
         main: {
@@ -77,14 +104,9 @@ export default function TarotPage() {
       setTimeout(() => setFlipped((prev) => ({ ...prev, sub1: true })), 900);
       setTimeout(() => setFlipped((prev) => ({ ...prev, sub2: true })), 1500);
 
-      const aiResponse = await axios.post(
-        "http://localhost:8080/api/tarot/analyze",
-        {
-          readingId: readingId,
-          category: category,
-          concern: concern,
-        },
-      );
+      setTimeout(() => {
+        handleAnalyze(newReadingId);
+      }, 1800);
     } catch (error) {
       console.error("카드 조회 실패:", error);
     }
@@ -93,10 +115,8 @@ export default function TarotPage() {
   return (
     <div className="tarot-container">
       <h1>AI 타로 분석</h1>
-
       {/* 1. 가이드 문구 */}
       <TarotGuide step={step} />
-
       {/* 2. 카드 슬롯 컨테이너 */}
       <TarotSlots
         step={step}
@@ -104,16 +124,37 @@ export default function TarotPage() {
         flipped={flipped}
         cardsData={cardsData}
       />
-
       {/* 3. 하단 카드 덱 */}
       <TarotDeck step={step} onPickCard={handlePickCard} />
-
       {/* 4. 결과 보기 버튼 */}
       {step === 4 && (
         <button className="result-btn" onClick={handleRevealResults}>
           AI 해석 보기
         </button>
       )}
+      {step === 5 && isAnalyzing && (
+        <div className="analysis-loading">
+          {" "}
+          <div className="loading-spinner"></div>{" "}
+          <p> 🔮 AI 타로술사가 카드를 해석하고 있습니다... </p>{" "}
+          <span> 잠시만 기다려주세요. </span>{" "}
+        </div>
+      )}{" "}
+      {/* 6. AI 분석 오류 */}{" "}
+      {analysisError && (
+        <div className="analysis-error">
+          {" "}
+          <p>{analysisError}</p>{" "}
+        </div>
+      )}{" "}
+      {/* 7. AI 분석 결과 */}{" "}
+      {analysisResult && !isAnalyzing && (
+        <div className="analysis-result">
+          {" "}
+          <h2>🔮 타로 해석</h2>{" "}
+          <div className="analysis-content"> {analysisResult} </div>{" "}
+        </div>
+      )}{" "}
     </div>
   );
 }
