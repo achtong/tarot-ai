@@ -43,7 +43,7 @@
 - **Database:** MySQL, Redis
 - **Message Broker:** Apache Kafka
 - **DevOps / Infra:** Docker, Docker Compose
-- **AI:** Claude API
+- **AI:** Gemini Flash 3.6
 
 ## 성능 개선 과정
 
