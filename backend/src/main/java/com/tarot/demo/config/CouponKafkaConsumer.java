@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tarot.demo.DTO.CouponIssueDTO;
 import com.tarot.demo.DTO.CouponIssueMessage;
-import com.tarot.demo.mapper.TestMapper;
+import com.tarot.demo.coupon.mapper.CouponMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,16 +18,15 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CouponKafkaConsumer {
-     private final TestMapper testMapper;
-     private final AtomicInteger count = new AtomicInteger(0);
+    private final CouponMapper couponMapper;
+    private final AtomicInteger count = new AtomicInteger(0);
 
-     private long startTime;
+    private long startTime;
 
     @KafkaListener(
             topics = "coupon-issue",
             groupId = "coupon-issue-group"
     )
-
     @Transactional
     public void consume(CouponIssueMessage message) {
         try {
@@ -37,20 +36,20 @@ public class CouponKafkaConsumer {
             }
 
             CouponIssueDTO DTO = new CouponIssueDTO();
-            
+
             DTO.setUserId(message.getUserId());
             DTO.setCouponCode(message.getCouponCode());
 
-            testMapper.coupon(DTO);
+            couponMapper.coupon(DTO);
 
-            int updated = testMapper.updateCouponStock(
+            int updated = couponMapper.updateCouponStock(
                 message.getCouponCode()
             );
 
             if (updated == 0) {
                 throw new IllegalStateException("DB 재고 차감 실패");
             }
-            
+
             int current = count.incrementAndGet();
 
             // 100개 처리 완료
@@ -60,13 +59,8 @@ public class CouponKafkaConsumer {
                 double elapsedMs =
                     (endTime - startTime) / 1_000_000.0;
 
-                log.info(
-                    "===== Kafka Consumer 100개 처리 완료 ====="
-                );
-                log.info(
-                    "처리시간: {} ms",
-                    elapsedMs
-                );
+                log.info("===== Kafka Consumer 100개 처리 완료 =====");
+                log.info("처리시간: {} ms", elapsedMs);
             }
         } catch (DuplicateKeyException e){
             System.out.println("중복 오류로 스킵");

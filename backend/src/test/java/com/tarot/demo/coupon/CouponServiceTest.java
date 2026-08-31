@@ -14,12 +14,12 @@ import static org.awaitility.Awaitility.await;
 import java.util.concurrent.TimeUnit;
 
 import com.tarot.demo.DTO.CouponIssueDTO;
+import com.tarot.demo.coupon.service.CouponService;
 import com.tarot.demo.exception.CustomException;
-import com.tarot.demo.service.TestService;
 @SpringBootTest
 class CouponServiceTest {
     @Autowired
-    private TestService testService;
+    private CouponService couponService;
 
     @Test
     @DisplayName("1,000명이 동시에 요청 시 선착순 100명만 성공하고 900명은 실패해야 한다/스레드풀 : 32")
@@ -48,7 +48,7 @@ class CouponServiceTest {
             dto.setUserId(String.valueOf(userId));
             executorService.submit(() -> {
                 try {
-                    testService.issueCoupon(dto, testCouponCode);
+                    couponService.issueCoupon(dto, testCouponCode);
 
                     // 예외가 발생하지 않았다면 성공
                     successCount.incrementAndGet();
@@ -95,17 +95,17 @@ class CouponServiceTest {
 
         // 2번 호출하여 멱등성 보장 여부 파악
         // 1번째 호출 (정상 저장되어야 함)
-        testService.issueCoupon(duplicateDto, couponCode);
+        couponService.issueCoupon(duplicateDto, couponCode);
 
         // 2번째 호출
-        testService.issueCoupon(duplicateDto, couponCode);        
+        couponService.issueCoupon(duplicateDto, couponCode);
         
         // DB에 해당 유저의 발급 내역이 정확히 '1건'만 존재하는지 검증
          await()
         .atMost(10, TimeUnit.SECONDS)
         .pollInterval(500, TimeUnit.MILLISECONDS)
         .untilAsserted(() -> {
-            int savedCount = testService.countCoupon(duplicateDto);
+            int savedCount = couponService.countCoupon(duplicateDto);
             assertThat(savedCount).isEqualTo(1);
         });
     }

@@ -1,4 +1,4 @@
-package com.tarot.demo.service;
+package com.tarot.demo.coupon.service;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,9 +12,9 @@ import com.tarot.demo.DTO.CouponDTO;
 import com.tarot.demo.DTO.CouponIssueDTO;
 import com.tarot.demo.DTO.CouponIssueMessage;
 import com.tarot.demo.config.CouponKafkaProducer;
+import com.tarot.demo.coupon.mapper.CouponMapper;
 import com.tarot.demo.exception.CustomException;
 import com.tarot.demo.exception.ErrorCode;
-import com.tarot.demo.mapper.TestMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class TestService {
+public class CouponService {
 
     private final StringRedisTemplate redisTemplate;
     private final CouponKafkaProducer couponKafkaProducer;
-    private final TestMapper testMapper;
+    private final CouponMapper couponMapper;
     private static final String STOCK_DECREASE_SCRIPT = """
     -- KEYS[1]: coupon:stock:{couponCode}      (재고 카운터)
     -- KEYS[2]: coupon:issued:{couponCode}     (발급받은 유저 Set)
@@ -55,21 +55,21 @@ public class TestService {
     """;
 
     public List<CouponDTO> findAll() {
-        return testMapper.findAll();
+        return couponMapper.findAll();
     }
 
     @Transactional
     public boolean coupon(CouponIssueDTO DTO, String CouponCode){
         long start = System.currentTimeMillis();
-        int update = testMapper.updateCouponStock(CouponCode);
+        int update = couponMapper.updateCouponStock(CouponCode);
 
         if(update == 0){
             long end = System.currentTimeMillis();
             log.info("품절 처리 시간: {} ms",end - start);
             return false;
-        } 
-        DTO.setCouponCode(CouponCode); 
-        testMapper.coupon(DTO); 
+        }
+        DTO.setCouponCode(CouponCode);
+        couponMapper.coupon(DTO);
         long end = System.currentTimeMillis();
         log.info("쿠폰 발급 처리 시간: {} ms", end - start);
         return true;
@@ -79,7 +79,7 @@ public class TestService {
 
         String stockKey = "coupon:stock:" + couponCode;
         String issuedKey = "coupon:issued:" + couponCode;
-        
+
         RedisScript<Long> script = RedisScript.of(
             STOCK_DECREASE_SCRIPT,
             Long.class
@@ -89,7 +89,7 @@ public class TestService {
             script,
             Arrays.asList(stockKey, issuedKey),
             DTO.getUserId()
-    );
+        );
 
         if (result == null || result != 1) {
             throw new CustomException(ErrorCode.COUPON_SOLD_OUT);
@@ -104,11 +104,7 @@ public class TestService {
         couponKafkaProducer.send(message);
     }
 
-    public int countCoupon (CouponIssueDTO dto) {
-        return testMapper.countCoupon(dto);
+    public int countCoupon(CouponIssueDTO dto) {
+        return couponMapper.countCoupon(dto);
     }
-    
-
-    
-
 }

@@ -12,12 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class CouponKafkaProducer {
-     private final KafkaTemplate<String, CouponIssueMessage> kafkaTemplate;
+    private final KafkaTemplate<String, CouponIssueMessage> kafkaTemplate;
 
     private static final String TOPIC = "coupon-issue";
 
     public void send(CouponIssueMessage message) {
-
         kafkaTemplate.send(
                 TOPIC,
                 message.getCouponCode(),

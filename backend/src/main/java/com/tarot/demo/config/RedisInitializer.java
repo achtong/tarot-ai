@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.tarot.demo.DTO.CouponDTO;
 import com.tarot.demo.DTO.TarotCardDTO;
+import com.tarot.demo.DTO.CouponDTO;
+import com.tarot.demo.coupon.mapper.CouponMapper;
 import com.tarot.demo.mapper.TarotMapper;
-import com.tarot.demo.mapper.TestMapper;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import tools.jackson.databind.ObjectMapper;
 @Component
 @RequiredArgsConstructor
 public class RedisInitializer {
-    private final TestMapper testMapper;
+    private final CouponMapper couponMapper;
     private final TarotMapper tarotCardMapper;
     private final StringRedisTemplate redisTemplate;
     
@@ -52,7 +52,7 @@ public class RedisInitializer {
         }
 
         // 쿠폰 관련
-        List<CouponDTO> coupons = testMapper.findAll();
+        List<CouponDTO> coupons = couponMapper.findAll();
 
         for (CouponDTO coupon : coupons) {
 
