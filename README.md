@@ -1,13 +1,20 @@
 # AI 타로 분석 & 선착순 쿠폰 발급 서비스
 
 ## 프로젝트 소개 (개발 진행 중)
-사용자가 입력한 질문이나 상황을 바탕으로 AI 에이전트가 타로 카드를 추천하고,
-해당 카드 조합에 따른 맞춤형 운세 해석 결과를 제공하고, 타로에 참가한 사람들에게 선착순 쿠폰을 발급 및 사용, 삭제 등을 구현한 RESTful API 서버입니다.
+사용자가 선택한 운세 카테고리와 고민을 기반으로 Gemini AI Agent가
+질문의 세부 의도를 파악하고, 연애운/재물운/직장운에 맞는 분석 Tool을
+선택하여 Redis의 카드 정보와 질문을 조합해 최종 해석을 생성합니다. 
+그리고 타로 분석에 참가한 사람들에게 선착순 쿠폰을 발급 및 사용, 삭제 등을 구현한 RESTful API 서버입니다.
 
 ## 📌 프로젝트 기획 배경
 
-- **AI 서비스 경험 제공:** 사용자가 고른 3개의 카드를 AI 에이전트가 분석하여 오늘의 운세를 보여줌
+- **AI 서비스 경험 제공:** 랜덤으로 고른 3개의 카드를 AI 에이전트가 분석하여 오늘의 운세를 보여줌
 - **대용량 트래픽 및 동시성 검증:** 타로 분석 완료 이용자를 대상으로 한 '선착순 쿠폰 이벤트' 상황을 가상 구축하여, 순간 트래픽 스파이크(Traffic Spike) 시의 동시성 제어 및 데이터 정합성 보장 구조 설계
+
+## 분석 처리 흐름도
+<img width="386" height="759" alt="image" src="https://github.com/user-attachments/assets/fdb0d8af-e7cd-4454-91cb-18be9cde5680" />
+
+
 
 ### 1. RESTful API 설계 및 상태 관리 (Coupon Domain)
 
@@ -37,7 +44,7 @@
 - **Database:** MySQL, Redis
 - **Message Broker:** Apache Kafka
 - **DevOps / Infra:** Docker, Docker Compose
-- **AI:** Claude API
+- **AI:** Gemini Flash 3.6
 
 ## 성능 개선 과정
 
