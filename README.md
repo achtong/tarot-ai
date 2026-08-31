@@ -12,49 +12,8 @@
 - **대용량 트래픽 및 동시성 검증:** 타로 분석 완료 이용자를 대상으로 한 '선착순 쿠폰 이벤트' 상황을 가상 구축하여, 순간 트래픽 스파이크(Traffic Spike) 시의 동시성 제어 및 데이터 정합성 보장 구조 설계
 
 ## 분석 처리 흐름도
-사용자
-  │
-  ├─ 운세 선택
-  └─ 고민 입력
-  │
-  ▼
-Frontend
-  │
-  │ 카드 3장 요청
-  ▼
-TarotService
-  │
-  ├─ Redis에서 카드 3장 랜덤 선택
-  ├─ readingId 생성
-  └─ tarot:reading:{readingId} 저장
-  │
-  │ TTL 30분
-  ▼
-AI 분석 요청
-  │
-  ▼
-Gemini AI Agent
-  │
-  ├─ 질문의 세부 의도 파악
-  └─ 분석 Tool 선택
-        │
-        ├─ analyzeLove
-        ├─ analyzeWealth
-        └─ analyzeCareer
-              │
-              ▼
-        Redis 카드 상세정보 조회
-              │
-              ▼
-        질문 + 의도 + 카드 의미 조합
-              │
-              ▼
-        Gemini 최종 해석 생성
-              │
-              ▼
-Frontend
-  │
-  └─ AI 타로 해석 표시
+<img width="540" height="746" alt="image" src="https://github.com/user-attachments/assets/095bf82d-0c1f-4752-aed2-2018d5ab416f" />
+
 
 ### 1. RESTful API 설계 및 상태 관리 (Coupon Domain)
 
