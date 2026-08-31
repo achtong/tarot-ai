@@ -11,12 +11,16 @@ export default function TarotPage() {
   const category = searchParams.get("category");
   const concern = sessionStorage.getItem("concern");
   const [step, setStep] = useState(1);
-  const [readingId, setReadingId] = useState(null);
 
   // AI 분석 결과
   const [analysisResult, setAnalysisResult] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState("");
+
+  // 쿠폰 발급
+  const [userId, setUserId] = useState("");
+  const [isIssuingCoupon, setIsIssuingCoupon] = useState(false);
+  const [couponResult, setCouponResult] = useState({ type: "", message: "" });
 
   const [mounted, setMounted] = useState({
     main: false,
@@ -72,6 +76,37 @@ export default function TarotPage() {
     }
   };
 
+  const handleCouponIssue = async () => {
+    const trimmedUserId = userId.trim();
+
+    if (!trimmedUserId) {
+      setCouponResult({ type: "error", message: "ID를 입력해주세요." });
+      return;
+    }
+
+    setIsIssuingCoupon(true);
+    setCouponResult({ type: "", message: "" });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/coupons/C001/issue",
+        { userId: trimmedUserId },
+      );
+
+      setCouponResult({ type: "success", message: response.data });
+    } catch (error) {
+      const message =
+        error.response?.data?.message ||
+        (error.response?.status === 409
+          ? "쿠폰이 모두 소진되었거나 이미 발급받았습니다."
+          : "쿠폰 발급 중 오류가 발생했습니다.");
+
+      setCouponResult({ type: "error", message });
+    } finally {
+      setIsIssuingCoupon(false);
+    }
+  };
+
   // AI 결과 요청 & 카드 Flip 애니메이션 실행
   const handleRevealResults = async () => {
     try {
@@ -97,7 +132,6 @@ export default function TarotPage() {
       };
 
       setCardsData(responseData);
-      setReadingId(response.data.readingId);
       setStep(5);
       // 순차적 뒤집기
       setTimeout(() => setFlipped((prev) => ({ ...prev, main: true })), 300);
@@ -153,6 +187,39 @@ export default function TarotPage() {
           {" "}
           <h2>🔮 타로 해석</h2>{" "}
           <div className="analysis-content"> {analysisResult} </div>{" "}
+          <div className="coupon-issue-area">
+            <h3>선착순 쿠폰 받기</h3>
+            <p>C001 쿠폰을 받을 ID를 입력해주세요.</p>
+            <div className="coupon-issue-form">
+              <input
+                type="text"
+                value={userId}
+                onChange={(event) => {
+                  setUserId(event.target.value);
+                  setCouponResult({ type: "", message: "" });
+                }}
+                placeholder="ID 입력"
+                disabled={isIssuingCoupon || couponResult.type === "success"}
+                aria-label="쿠폰을 받을 ID"
+              />
+              <button
+                type="button"
+                className="coupon-issue-btn"
+                onClick={handleCouponIssue}
+                disabled={isIssuingCoupon || couponResult.type === "success"}
+              >
+                {isIssuingCoupon ? "발급 중..." : "쿠폰 받기"}
+              </button>
+            </div>
+            {couponResult.message && (
+              <p
+                className={`coupon-result ${couponResult.type}`}
+                role="status"
+              >
+                {couponResult.message}
+              </p>
+            )}
+          </div>
         </div>
       )}{" "}
     </div>
