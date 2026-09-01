@@ -58,6 +58,32 @@ public class CouponService {
         return couponMapper.findAll();
     }
 
+    public void useCoupon(String couponCode, String userId) {
+        int updated = couponMapper.markCouponUsed(couponCode, userId);
+
+        if (updated == 0) {
+            CouponIssueDTO dto = new CouponIssueDTO();
+            dto.setCouponCode(couponCode);
+            dto.setUserId(userId);
+
+            if (couponMapper.countCoupon(dto) == 0) {
+                throw new CustomException(ErrorCode.COUPON_ISSUE_NOT_FOUND);
+            }
+        }
+    }
+
+    @Transactional
+    public void deleteCouponIssue(String couponCode, String userId) {
+        if (couponMapper.deleteCouponIssue(couponCode, userId) == 0) {
+            throw new CustomException(ErrorCode.COUPON_ISSUE_NOT_FOUND);
+        }
+
+        redisTemplate.opsForSet().remove(
+            "coupon:issued:" + couponCode,
+            userId
+        );
+    }
+
     @Transactional
     public boolean coupon(CouponIssueDTO DTO, String CouponCode){
         long start = System.currentTimeMillis();

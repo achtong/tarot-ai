@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,11 +33,29 @@ public class CouponController {
     }
 
     @PostMapping("/coupons/{couponCode}/issue")
-    public ResponseEntity<?> issue(
+    public ResponseEntity<Void> issue(
             @PathVariable String couponCode,
-            @RequestBody CouponIssueDTO DTO) {
-        couponService.issueCoupon(DTO, couponCode);
+            @RequestBody CouponIssueDTO dto) {
+        couponService.issueCoupon(dto, couponCode);
 
-        return ResponseEntity.ok("쿠폰 발급이 완료되었습니다.");
+        return ResponseEntity.accepted().build();
+    }
+
+    @PatchMapping("/coupons/{couponCode}/issues/{userId}")
+    public ResponseEntity<Void> use(
+            @PathVariable String couponCode,
+            @PathVariable String userId) {
+        couponService.useCoupon(couponCode, userId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/coupons/{couponCode}/issues/{userId}")
+    public ResponseEntity<Void> deleteIssue(
+            @PathVariable String couponCode,
+            @PathVariable String userId) {
+        couponService.deleteCouponIssue(couponCode, userId);
+
+        return ResponseEntity.noContent().build();
     }
 }

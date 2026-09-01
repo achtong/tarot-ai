@@ -88,12 +88,15 @@ export default function TarotPage() {
     setCouponResult({ type: "", message: "" });
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8080/api/coupons/C001/issue",
         { userId: trimmedUserId },
       );
 
-      setCouponResult({ type: "success", message: response.data });
+      setCouponResult({
+        type: "success",
+        message: "쿠폰 발급 요청이 접수되었습니다.",
+      });
     } catch (error) {
       const message =
         error.response?.data?.message ||

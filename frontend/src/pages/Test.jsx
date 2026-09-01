@@ -3,6 +3,11 @@ import axios from "axios";
 
 function Test() {
   const [coupons, setCoupons] = useState([]);
+  const [useCouponCode, setUseCouponCode] = useState("");
+  const [useUserId, setUseUserId] = useState("");
+  const [deleteCouponCode, setDeleteCouponCode] = useState("");
+  const [deleteUserId, setDeleteUserId] = useState("");
+  const [message, setMessage] = useState("");
 
   const getCoupons = () => {
     axios
@@ -55,9 +60,100 @@ function Test() {
     }, 2000);
   };
 
+  const handleCouponUse = async () => {
+    const couponCode = useCouponCode.trim();
+    const userId = useUserId.trim();
+
+    if (!couponCode || !userId) {
+      setMessage("사용할 쿠폰 코드와 사용자 ID를 입력해주세요.");
+      return;
+    }
+
+    try {
+      await axios.patch(
+        `http://localhost:8080/api/coupons/${encodeURIComponent(couponCode)}/issues/${encodeURIComponent(userId)}`,
+      );
+      setMessage(`${userId} 사용자의 ${couponCode} 쿠폰을 사용했습니다.`);
+      setUseCouponCode("");
+      setUseUserId("");
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "쿠폰 사용 중 오류가 발생했습니다.",
+      );
+    }
+  };
+
+  const handleCouponDelete = async () => {
+    const couponCode = deleteCouponCode.trim();
+    const userId = deleteUserId.trim();
+
+    if (!couponCode || !userId) {
+      setMessage("삭제할 쿠폰 코드와 사용자 ID를 입력해주세요.");
+      return;
+    }
+
+    try {
+      await axios.delete(
+        `http://localhost:8080/api/coupons/${encodeURIComponent(couponCode)}/issues/${encodeURIComponent(userId)}`,
+      );
+      setMessage(`${userId} 사용자의 ${couponCode} 발급 내역을 삭제했습니다.`);
+      setDeleteCouponCode("");
+      setDeleteUserId("");
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "쿠폰 삭제 중 오류가 발생했습니다.",
+      );
+    }
+  };
+
   return (
     <div>
       <button onClick={handleCouponIssue}>쿠폰 발급 테스트</button>
+      <div>
+        <h2>쿠폰 사용</h2>
+        <label htmlFor="use-coupon-code">쿠폰 코드</label>
+        <input
+          id="use-coupon-code"
+          type="text"
+          value={useCouponCode}
+          onChange={(event) => setUseCouponCode(event.target.value)}
+          placeholder="예: C001"
+        />
+        <label htmlFor="use-user-id">사용자 ID</label>
+        <input
+          id="use-user-id"
+          type="text"
+          value={useUserId}
+          onChange={(event) => setUseUserId(event.target.value)}
+          placeholder="사용자 ID 입력"
+        />
+        <button type="button" onClick={handleCouponUse}>
+          사용
+        </button>
+      </div>
+      <div>
+        <h2>발급 쿠폰 삭제</h2>
+        <label htmlFor="delete-coupon-code">쿠폰 코드</label>
+        <input
+          id="delete-coupon-code"
+          type="text"
+          value={deleteCouponCode}
+          onChange={(event) => setDeleteCouponCode(event.target.value)}
+          placeholder="예: C001"
+        />
+        <label htmlFor="delete-user-id">사용자 ID</label>
+        <input
+          id="delete-user-id"
+          type="text"
+          value={deleteUserId}
+          onChange={(event) => setDeleteUserId(event.target.value)}
+          placeholder="사용자 ID 입력"
+        />
+        <button type="button" onClick={handleCouponDelete}>
+          삭제
+        </button>
+      </div>
+      {message && <p role="status">{message}</p>}
       <h1>쿠폰 목록</h1>
 
       {coupons.map((coupon) => (

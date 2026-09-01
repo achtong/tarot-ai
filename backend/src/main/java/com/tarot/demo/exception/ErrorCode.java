@@ -26,6 +26,12 @@ public enum ErrorCode {
         "쿠폰 재고가 모두 소진되었습니다."
     ),
 
+    COUPON_ISSUE_NOT_FOUND(
+        HttpStatus.NOT_FOUND,
+        "COUPON_ISSUE_NOT_FOUND",
+        "해당 사용자의 발급 쿠폰을 찾을 수 없습니다."
+    ),
+
     INVALID_REQUEST(
         HttpStatus.BAD_REQUEST,
         "INVALID_REQUEST",

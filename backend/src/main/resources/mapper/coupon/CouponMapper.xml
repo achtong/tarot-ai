@@ -27,4 +27,15 @@
         FROM coupon_issue
         WHERE coupon_code = #{couponCode} and user_id = #{userId}
     </select>
+    <update id="markCouponUsed">
+        UPDATE coupon_issue
+        SET used = 'Y'
+        WHERE coupon_code = #{couponCode}
+          AND user_id = #{userId}
+    </update>
+    <delete id="deleteCouponIssue">
+        DELETE FROM coupon_issue
+        WHERE coupon_code = #{couponCode}
+          AND user_id = #{userId}
+    </delete>
 </mapper>

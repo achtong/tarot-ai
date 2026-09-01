@@ -36,7 +36,7 @@ export default function () {
 
   // 5. 응답 결과 체크
   check(res, {
-    "발급 성공 (200 OK)": (r) => r.status === 200,
+    "발급 요청 접수 (202 Accepted)": (r) => r.status === 202,
     "선착순 마감 (409 Conflict)": (r) => r.status === 409,
   });
 }
