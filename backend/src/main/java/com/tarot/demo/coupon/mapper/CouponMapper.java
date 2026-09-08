@@ -11,6 +11,7 @@ import com.tarot.demo.DTO.CouponIssueDTO;
 @Mapper
 public interface CouponMapper {
     List<CouponDTO> findAll();
+    String lockCoupon(@Param("couponCode") String couponCode);
     void coupon(CouponIssueDTO DTO);
     int updateCouponStock(String couponCode);
     int countCoupon(CouponIssueDTO dto);

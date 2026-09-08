@@ -1,73 +1,42 @@
 package com.tarot.demo.config;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import com.tarot.demo.DTO.CouponIssueDTO;
 import com.tarot.demo.DTO.CouponIssueMessage;
 import com.tarot.demo.coupon.mapper.CouponMapper;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class CouponKafkaConsumer {
     private final CouponMapper couponMapper;
-    private final AtomicInteger count = new AtomicInteger(0);
+    private final TransactionTemplate transaction;
 
-    private long startTime;
+    public CouponKafkaConsumer(CouponMapper couponMapper, PlatformTransactionManager transactionManager) {
+        this.couponMapper = couponMapper;
+        this.transaction = new TransactionTemplate(transactionManager);
+    }
 
-    @KafkaListener(
-            topics = "coupon-issue",
-            groupId = "coupon-issue-group"
-    )
-    @Transactional
+    @KafkaListener(topics = "coupon-issue", groupId = "coupon-issue-group", concurrency = "3")
     public void consume(CouponIssueMessage message) {
-        try {
-            // 첫 번째 메시지가 들어온 시간
-            if (count.get() == 0) {
-                startTime = System.nanoTime();
+        // 예외를 삼키지 않고 롤백 후 Kafka 재시도로 전달합니다.
+        transaction.executeWithoutResult(status -> {
+            // 외래키 검사 전에 부모 행을 잠가 공유 잠금의 승격 충돌을 방지합니다.
+            if (couponMapper.lockCoupon(message.getCouponCode()) == null) {
+                throw new IllegalStateException("쿠폰을 찾을 수 없습니다: " + message.getCouponCode());
             }
-
-            CouponIssueDTO DTO = new CouponIssueDTO();
-
-            DTO.setUserId(message.getUserId());
-            DTO.setCouponCode(message.getCouponCode());
-
-            couponMapper.coupon(DTO);
-
-            int updated = couponMapper.updateCouponStock(
-                message.getCouponCode()
-            );
-
-            if (updated == 0) {
-                throw new IllegalStateException("DB 재고 차감 실패");
+            CouponIssueDTO dto = new CouponIssueDTO();
+            dto.setUserId(message.getUserId());
+            dto.setCouponCode(message.getCouponCode());
+            // 쿠폰 잠금을 얻은 뒤 중복을 확인하므로 재고 0에서 재전달되어도 안전합니다.
+            if (couponMapper.countCoupon(dto) > 0) {
+                return;
             }
-
-            int current = count.incrementAndGet();
-
-            // 100개 처리 완료
-            if (current == 100) {
-                long endTime = System.nanoTime();
-
-                double elapsedMs =
-                    (endTime - startTime) / 1_000_000.0;
-
-                log.info("===== Kafka Consumer 100개 처리 완료 =====");
-                log.info("처리시간: {} ms", elapsedMs);
+            if (couponMapper.updateCouponStock(message.getCouponCode()) != 1) {
+                throw new IllegalStateException("DB 재고 차감 실패: " + message.getCouponCode());
             }
-        } catch (DuplicateKeyException e){
-            System.out.println("중복 오류로 스킵");
-            log.warn("중복 쿠폰 발급 요청 스킵: userId={}, couponCode={}",
-                 message.getUserId(), message.getCouponCode());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            couponMapper.coupon(dto);
+        });
     }
 }

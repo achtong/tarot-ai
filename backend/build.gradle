@@ -60,5 +60,5 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
-	enabled = false   // 테스트 실행 자체를 끔
+	enabled = providers.gradleProperty('runTests').isPresent()
 }

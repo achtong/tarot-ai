@@ -12,6 +12,11 @@
             coupon_stock AS couponStock
         FROM coupon
     </select>
+    <select id="lockCoupon" resultType="java.lang.String">
+        SELECT coupon_code FROM coupon
+        WHERE coupon_code = #{couponCode}
+        FOR UPDATE
+    </select>
     <insert id="coupon" parameterType="com.tarot.demo.DTO.CouponIssueDTO">
         INSERT INTO coupon_issue (user_id, coupon_code)
         VALUES (#{userId}, #{couponCode})

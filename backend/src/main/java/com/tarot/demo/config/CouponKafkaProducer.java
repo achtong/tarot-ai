@@ -19,15 +19,14 @@ public class CouponKafkaProducer {
     public void send(CouponIssueMessage message) {
         kafkaTemplate.send(
                 TOPIC,
-                message.getCouponCode(),
-                message
-        ).whenComplete((result, ex) -> {
-            if (ex != null) {
-                log.error("Kafka 발행 실패: {}", message, ex);
-            } else {
-                log.debug("Kafka 발행 성공: offset={}",
-                    result.getRecordMetadata().offset());
-            }
-        });
+                message.getCouponCode() + ":" + message.getUserId(),
+                message).whenComplete((result, ex) -> {
+                    if (ex != null) {
+                        log.error("Kafka 발행 실패: {}", message, ex);
+                    } else {
+                        log.debug("Kafka 발행 성공: offset={}",
+                                result.getRecordMetadata().offset());
+                    }
+                });
     }
 }
