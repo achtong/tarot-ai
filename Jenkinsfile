@@ -163,9 +163,20 @@ pipeline {
                             "sudo -n docker compose ps tarot-app"
                         )
 
-                        $remoteScript = $commands -join "`n"
+                        # BOM 없는 UTF-8 파일 생성
+                        $scriptPath = Join-Path $env:WORKSPACE "oci-deploy.sh"
+                        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 
-                        $remoteScript | & ssh -i $keyPath -o BatchMode=yes "$($env:SSH_USER)@150.230.62.194" "bash -se"
+                        [System.IO.File]::WriteAllText(
+                            $scriptPath,
+                            $remoteScript,
+                            $utf8NoBom
+                        )
+
+                        # SSH 표준 입력으로 파일 내용 전달
+                        $sshCommand = 'ssh -i "{0}" -o BatchMode=yes "{1}@150.230.62.194" "bash -se" < "{2}"' -f $keyPath, $env:SSH_USER, $scriptPath
+
+                        cmd.exe /d /c $sshCommand
 
                         if ($LASTEXITCODE -ne 0) {
                             throw "OCI Docker 배포 실패"
