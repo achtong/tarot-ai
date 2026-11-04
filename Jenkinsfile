@@ -163,6 +163,8 @@ pipeline {
                             "sudo -n docker compose ps tarot-app"
                         )
 
+                        $remoteScript = ($commands -join "`n") + "`n"
+                        
                         # BOM 없는 UTF-8 파일 생성
                         $scriptPath = Join-Path $env:WORKSPACE "oci-deploy.sh"
                         $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
