@@ -141,36 +141,29 @@ pipeline {
                         $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 
                         icacls $keyPath /inheritance:r | Out-Null
-                        if ($LASTEXITCODE -ne 0) { throw "SSH 키 권한 설정 실패" }
+                        if ($LASTEXITCODE -ne 0) {
+                            throw "SSH 키 권한 설정 실패"
+                        }
 
                         icacls $keyPath /grant:r "${currentUser}:(R)" | Out-Null
-                        if ($LASTEXITCODE -ne 0) { throw "SSH 키 읽기 권한 설정 실패" }
+                        if ($LASTEXITCODE -ne 0) {
+                            throw "SSH 키 읽기 권한 설정 실패"
+                        }
 
-                        $remoteScript = @'
-        set -eu
-        cd /home/ubuntu
+                        $commands = @(
+                            "set -eu",
+                            "cd /home/ubuntu",
+                            "test -s demo-0.0.1-SNAPSHOT.jar.new",
+                            "sudo -n docker image inspect tarot-app:1.1 > /dev/null",
+                            "sudo -n docker tag tarot-app:1.1 tarot-app:backup",
+                            "cp demo-0.0.1-SNAPSHOT.jar demo-0.0.1-SNAPSHOT.jar.backup",
+                            "mv demo-0.0.1-SNAPSHOT.jar.new demo-0.0.1-SNAPSHOT.jar",
+                            "sudo -n docker build -t tarot-app:1.1 .",
+                            "sudo -n docker compose up -d --no-deps --force-recreate tarot-app",
+                            "sudo -n docker compose ps tarot-app"
+                        )
 
-        # 기존 이미지 백업
-        sudo docker tag tarot-app:1.1 tarot-app:backup
-
-        # 새 JAR가 존재하는지 확인
-        test -s demo-0.0.1-SNAPSHOT.jar.new
-
-        # 새 JAR로 교체
-        cp demo-0.0.1-SNAPSHOT.jar demo-0.0.1-SNAPSHOT.jar.backup
-        mv demo-0.0.1-SNAPSHOT.jar.new demo-0.0.1-SNAPSHOT.jar
-
-        # Docker 이미지 빌드
-        sudo docker build -t tarot-app:1.1 .
-
-        # Spring Boot만 재배포
-        sudo docker compose up -d --no-deps --force-recreate tarot-app
-
-        # 실행 상태 확인
-        sudo docker compose ps tarot-app
-        '@
-
-                        $remoteScript = $remoteScript -replace "`r", ""
+                        $remoteScript = $commands -join "`n"
 
                         $remoteScript | & ssh -i $keyPath -o BatchMode=yes "$($env:SSH_USER)@150.230.62.194" "bash -se"
 
