@@ -1,21 +1,18 @@
 spring:
-  profiles:
-    active: local
   ai:
     google:
       genai:
-        api-key: ${GEMINI_API_KEY:}
+        api-key: ${GEMINI_API_KEY}
         chat:
           options:
             model: gemini-3.6-flash
   datasource:
-    url: jdbc:mysql://localhost:3306/tarot?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://127.0.0.1:3307/tarot?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: tarot
     password: tarot
     driver-class-name: com.mysql.cj.jdbc.Driver
   kafka:
     bootstrap-servers: localhost:9092
-
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer

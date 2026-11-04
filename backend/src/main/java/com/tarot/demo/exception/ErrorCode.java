@@ -20,6 +20,12 @@ public enum ErrorCode {
         "카드를 찾을 수 없습니다."
     ),
 
+    COUPON_ALREADY_ISSUED(
+        HttpStatus.CONFLICT,
+        "COUPON_ALREADY_ISSUED",
+        "이미 발급받은 쿠폰입니다."
+    ),
+
     COUPON_SOLD_OUT(
         HttpStatus.CONFLICT,
         "COUPON_SOLD_OUT",

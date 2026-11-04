@@ -57,7 +57,7 @@ export default function TarotPage() {
     setAnalysisError("");
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/tarot/analyze",
+        "/api/tarot/analyze",
         { readingId: currentReadingId, category: category, concern: concern },
       );
       console.log("AI 분석 결과:", response.data);
@@ -89,7 +89,7 @@ export default function TarotPage() {
 
     try {
       await axios.post(
-        "http://localhost:8080/api/coupons/C001/issue",
+        "/api/coupons/C001/issue",
         { userId: trimmedUserId },
       );
 
@@ -113,7 +113,7 @@ export default function TarotPage() {
   // AI 결과 요청 & 카드 Flip 애니메이션 실행
   const handleRevealResults = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/tarot/3card");
+      const response = await axios.get("/api/tarot/3card");
       const { readingId: newReadingId, cards } = response.data;
 
       const responseData = {

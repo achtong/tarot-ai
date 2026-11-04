@@ -11,7 +11,7 @@ function Test() {
 
   const getCoupons = () => {
     axios
-      .get("http://localhost:8080/api/test")
+      .get("/api/test")
       .then((response) => {
         console.log(response.data);
         setCoupons(response.data);

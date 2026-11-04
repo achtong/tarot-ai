@@ -102,6 +102,10 @@ public class CouponService {
     }
 
     public void issueCoupon(CouponIssueDTO DTO, String couponCode) {
+        DTO.setCouponCode(couponCode);
+        if (couponMapper.countCoupon(DTO) > 0) {
+            throw new CustomException(ErrorCode.COUPON_ALREADY_ISSUED);
+        }
 
         String stockKey = "coupon:stock:" + couponCode;
         String issuedKey = "coupon:issued:" + couponCode;
@@ -116,6 +120,10 @@ public class CouponService {
             Arrays.asList(stockKey, issuedKey),
             DTO.getUserId()
         );
+
+        if (Long.valueOf(-2).equals(result)) {
+            throw new CustomException(ErrorCode.COUPON_ALREADY_ISSUED);
+        }
 
         if (result == null || result != 1) {
             throw new CustomException(ErrorCode.COUPON_SOLD_OUT);
