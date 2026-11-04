@@ -55,20 +55,36 @@ pipeline {
         }
 
         stage('Test OCI SSH') {
-                    steps {
-                        withCredentials([
-                            sshUserPrivateKey(
-                                credentialsId: 'oci-ssh-key',
-                                keyFileVariable: 'SSH_KEY',
-                                usernameVariable: 'SSH_USER'
-                            )
-                        ]) {
-                            bat '''
-                                ssh -i "%SSH_KEY%" -o BatchMode=yes ubuntu@150.230.62.194 "echo OCI SSH CONNECTION SUCCESS"
-                            '''
-                        }
-                    }
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'oci-ssh-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
+                    powershell '''
+                        $ErrorActionPreference = "Stop"
+
+                        # Jenkins가 생성한 개인키 파일의 ACL 확인
+                        $keyPath = $env:SSH_KEY
+                        $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+
+                        # 상속된 권한 제거
+                        icacls $keyPath /inheritance:r
+                        if ($LASTEXITCODE -ne 0) { throw "ACL 상속 제거 실패" }
+
+                        # 현재 Jenkins 실행 사용자에게 읽기 권한 부여
+                        icacls $keyPath /grant:r "${currentUser}:(R)"
+                        if ($LASTEXITCODE -ne 0) { throw "ACL 설정 실패" }
+
+                        # OCI SSH 연결 테스트
+                        & ssh -i $keyPath -o BatchMode=yes "$($env:SSH_USER)@150.230.62.194" "echo OCI SSH CONNECTION SUCCESS"
+                        if ($LASTEXITCODE -ne 0) { throw "OCI SSH 연결 실패" }
+                    '''
                 }
+            }
+        }
     }
 
 
