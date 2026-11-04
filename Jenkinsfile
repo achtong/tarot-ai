@@ -124,6 +124,65 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to OCI') {
+            steps {
+                withCredentials([
+                    sshUserPrivateKey(
+                        credentialsId: 'oci-ssh-key',
+                        keyFileVariable: 'SSH_KEY',
+                        usernameVariable: 'SSH_USER'
+                    )
+                ]) {
+                    powershell '''
+                        $ErrorActionPreference = "Stop"
+
+                        $keyPath = $env:SSH_KEY
+                        $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+
+                        icacls $keyPath /inheritance:r | Out-Null
+                        if ($LASTEXITCODE -ne 0) { throw "SSH 키 권한 설정 실패" }
+
+                        icacls $keyPath /grant:r "${currentUser}:(R)" | Out-Null
+                        if ($LASTEXITCODE -ne 0) { throw "SSH 키 읽기 권한 설정 실패" }
+
+                        $remoteScript = @'
+        set -eu
+        cd /home/ubuntu
+
+        # 기존 이미지 백업
+        sudo docker tag tarot-app:1.1 tarot-app:backup
+
+        # 새 JAR가 존재하는지 확인
+        test -s demo-0.0.1-SNAPSHOT.jar.new
+
+        # 새 JAR로 교체
+        cp demo-0.0.1-SNAPSHOT.jar demo-0.0.1-SNAPSHOT.jar.backup
+        mv demo-0.0.1-SNAPSHOT.jar.new demo-0.0.1-SNAPSHOT.jar
+
+        # Docker 이미지 빌드
+        sudo docker build -t tarot-app:1.1 .
+
+        # Spring Boot만 재배포
+        sudo docker compose up -d --no-deps --force-recreate tarot-app
+
+        # 실행 상태 확인
+        sudo docker compose ps tarot-app
+        '@
+
+                        $remoteScript = $remoteScript -replace "`r", ""
+
+                        $remoteScript | & ssh -i $keyPath -o BatchMode=yes "$($env:SSH_USER)@150.230.62.194" "bash -se"
+
+                        if ($LASTEXITCODE -ne 0) {
+                            throw "OCI Docker 배포 실패"
+                        }
+
+                        Write-Host "OCI Docker 배포 명령 실행 완료!"
+                    '''
+                }
+            }
+        }
     }
 
 
