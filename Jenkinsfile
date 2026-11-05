@@ -79,7 +79,7 @@ pipeline {
                         if ($LASTEXITCODE -ne 0) { throw "ACL 설정 실패" }
 
                         # OCI SSH 연결 테스트
-                        & ssh -i $keyPath -o BatchMode=yes "$($env:SSH_USER)@150.230.62.194" "echo OCI SSH CONNECTION SUCCESS"
+                        & ssh -i $keyPath -o BatchMode=yes "$($env:SSH_USER)@$($env:OCI_HOST)" "echo OCI SSH CONNECTION SUCCESS"
                         if ($LASTEXITCODE -ne 0) { throw "OCI SSH 연결 실패" }
                     '''
                 }
@@ -113,7 +113,7 @@ pipeline {
                             throw "JAR 파일을 찾을 수 없습니다: $jar"
                         }
 
-                        & scp -i $keyPath -o BatchMode=yes $jar "$($env:SSH_USER)@150.230.62.194:/home/ubuntu/demo-0.0.1-SNAPSHOT.jar.new"
+                        & scp -i $keyPath -o BatchMode=yes $jar "$($env:SSH_USER)@$($env:OCI_HOST):/home/ubuntu/demo-0.0.1-SNAPSHOT.jar.new"
 
                         if ($LASTEXITCODE -ne 0) {
                             throw "OCI JAR 전송 실패"
@@ -164,7 +164,7 @@ pipeline {
                         )
 
                         $remoteScript = ($commands -join "`n") + "`n"
-                        
+
                         # BOM 없는 UTF-8 파일 생성
                         $scriptPath = Join-Path $env:WORKSPACE "oci-deploy.sh"
                         $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
@@ -176,7 +176,7 @@ pipeline {
                         )
 
                         # SSH 표준 입력으로 파일 내용 전달
-                        $sshCommand = 'ssh -i "{0}" -o BatchMode=yes "{1}@150.230.62.194" "bash -se" < "{2}"' -f $keyPath, $env:SSH_USER, $scriptPath
+                        $sshCommand = 'ssh -i "{0}" -o BatchMode=yes "{1}@{2}" "bash -se" < "{3}"' -f $keyPath, $env:SSH_USER, $env:OCI_HOST, $scriptPath
 
                         cmd.exe /d /c $sshCommand
 
