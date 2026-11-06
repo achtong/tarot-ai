@@ -6,6 +6,14 @@ spring:
         chat:
           options:
             model: gemini-3.6-flash
+    mcp:
+      client:
+        enabled: true
+        type: SYNC
+        streamable-http:
+          connections:
+            tarot-mcp:
+              url: http://localhost:8081
   datasource:
     url: jdbc:mysql://127.0.0.1:3307/tarot?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: tarot
@@ -32,3 +40,12 @@ spring:
       port: 6379
 mybatis:
   mapper-locations: classpath:/mapper/**/*.xml
+
+app:
+  chat:
+    default-system-prompt: 당신은 타로 카드 전문 AI입니다.
+                           타로 카드의 의미와 상징에 관한 질문에는 반드시 ragTool을 호출하세요.
+                           검색된 문서에 포함된 카드만 설명하세요.
+                           검색되지 않은 카드의 의미를 임의로 추가하지 마세요.
+                           검색 결과가 부족하면 추가 검색을 수행하거나 부족하다고 안내하세요.
+                           모든 답변은 한국어로 작성하세요.
