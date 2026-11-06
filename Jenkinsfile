@@ -1,16 +1,20 @@
+
 pipeline {
     agent any
-
-    environment {
-        OCI_HOST = credentials('oci-host')
-    }
 
     options {
         timestamps()
         disableConcurrentBuilds()
     }
 
+    environment {
+        JAR_NAME = 'demo-0.0.1-SNAPSHOT.jar'
+        OCI_DIR = '/home/ubuntu'
+        DOCKER_IMAGE = 'tarot-app:1.1'
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -29,6 +33,8 @@ pipeline {
         stage('Copy React to Spring Boot') {
             steps {
                 powershell '''
+                    $ErrorActionPreference = "Stop"
+
                     $static = "backend/src/main/resources/static"
 
                     New-Item -ItemType Directory -Force -Path $static | Out-Null
@@ -53,79 +59,10 @@ pipeline {
 
         stage('Archive JAR') {
             steps {
-                archiveArtifacts artifacts: 'backend/build/libs/*.jar',
-                                 fingerprint: true
-            }
-        }
-
-        stage('Test OCI SSH') {
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'oci-ssh-key',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
-                    powershell '''
-                        $ErrorActionPreference = "Stop"
-
-                        # Jenkins가 생성한 개인키 파일의 ACL 확인
-                        $keyPath = $env:SSH_KEY
-                        $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-
-                        # 상속된 권한 제거
-                        icacls $keyPath /inheritance:r
-                        if ($LASTEXITCODE -ne 0) { throw "ACL 상속 제거 실패" }
-
-                        # 현재 Jenkins 실행 사용자에게 읽기 권한 부여
-                        icacls $keyPath /grant:r "${currentUser}:(R)"
-                        if ($LASTEXITCODE -ne 0) { throw "ACL 설정 실패" }
-
-                        # OCI SSH 연결 테스트
-                        & ssh -i $keyPath -o BatchMode=yes "$($env:SSH_USER)@$($env:OCI_HOST)" "echo OCI SSH CONNECTION SUCCESS"
-                        if ($LASTEXITCODE -ne 0) { throw "OCI SSH 연결 실패" }
-                    '''
-                }
-            }
-        }
-
-        stage('Upload JAR to OCI') {
-            steps {
-                withCredentials([
-                    sshUserPrivateKey(
-                        credentialsId: 'oci-ssh-key',
-                        keyFileVariable: 'SSH_KEY',
-                        usernameVariable: 'SSH_USER'
-                    )
-                ]) {
-                    powershell '''
-                        $ErrorActionPreference = "Stop"
-
-                        $keyPath = $env:SSH_KEY
-                        $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-
-                        icacls $keyPath /inheritance:r | Out-Null
-                        if ($LASTEXITCODE -ne 0) { throw "SSH 키 권한 설정 실패" }
-
-                        icacls $keyPath /grant:r "${currentUser}:(R)" | Out-Null
-                        if ($LASTEXITCODE -ne 0) { throw "SSH 키 읽기 권한 설정 실패" }
-
-                        $jar = "backend/build/libs/demo-0.0.1-SNAPSHOT.jar"
-
-                        if (-not (Test-Path $jar)) {
-                            throw "JAR 파일을 찾을 수 없습니다: $jar"
-                        }
-
-                        & scp -o -i $keyPath -o BatchMode=yes $jar "$($env:SSH_USER)@$($env:OCI_HOST):/home/ubuntu/demo-0.0.1-SNAPSHOT.jar.new"
-
-                        if ($LASTEXITCODE -ne 0) {
-                            throw "OCI JAR 전송 실패"
-                        }
-
-                        Write-Host "OCI JAR 전송 성공!"
-                    '''
-                }
+                archiveArtifacts(
+                    artifacts: 'backend/build/libs/*.jar',
+                    fingerprint: true
+                )
             }
         }
 
@@ -136,17 +73,50 @@ pipeline {
                         credentialsId: 'oci-ssh-key',
                         keyFileVariable: 'SSH_KEY',
                         usernameVariable: 'SSH_USER'
+                    ),
+                    string(
+                        credentialsId: 'oci-host',
+                        variable: 'OCI_HOST'
                     )
                 ]) {
                     powershell '''
                         $ErrorActionPreference = "Stop"
 
                         $keyPath = $env:SSH_KEY
+                        $sshUser = $env:SSH_USER
+                        $ociHost = $env:OCI_HOST
+
+                        $jar = "backend/build/libs/$($env:JAR_NAME)"
+                        $ociDir = $env:OCI_DIR
+                        $dockerImage = $env:DOCKER_IMAGE
+
+                        # 필수 환경변수 검증
+                        if ([string]::IsNullOrWhiteSpace($keyPath)) {
+                            throw "SSH_KEY가 비어 있습니다."
+                        }
+
+                        if ([string]::IsNullOrWhiteSpace($sshUser)) {
+                            throw "SSH_USER가 비어 있습니다."
+                        }
+
+                        if ([string]::IsNullOrWhiteSpace($ociHost)) {
+                            throw "OCI_HOST가 비어 있습니다."
+                        }
+
+                        if (-not (Test-Path $keyPath)) {
+                            throw "SSH 개인키 파일을 찾을 수 없습니다."
+                        }
+
+                        if (-not (Test-Path $jar)) {
+                            throw "JAR 파일을 찾을 수 없습니다: $jar"
+                        }
+
+                        # SSH 개인키 권한 설정
                         $currentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
 
                         icacls $keyPath /inheritance:r | Out-Null
                         if ($LASTEXITCODE -ne 0) {
-                            throw "SSH 키 권한 설정 실패"
+                            throw "SSH 키 ACL 상속 제거 실패"
                         }
 
                         icacls $keyPath /grant:r "${currentUser}:(R)" | Out-Null
@@ -154,13 +124,39 @@ pipeline {
                             throw "SSH 키 읽기 권한 설정 실패"
                         }
 
+                        $target = "${sshUser}@${ociHost}"
+
+                        # 1. OCI SSH 연결 확인
+                        Write-Host "OCI SSH 연결 테스트 시작"
+
+                        & ssh.exe -i "$keyPath" -o "BatchMode=yes" -o "ConnectTimeout=15" $target "echo OCI SSH CONNECTION SUCCESS"
+
+                        if ($LASTEXITCODE -ne 0) {
+                            throw "OCI SSH 연결 실패"
+                        }
+
+                        # 2. JAR 업로드
+                        Write-Host "OCI JAR 업로드 시작"
+
+                        $destination = "${target}:${ociDir}/$($env:JAR_NAME).new"
+
+                        # 대문자 O: 기존 SCP 프로토콜 사용
+                        & scp.exe -O -i "$keyPath" -o "BatchMode=yes" "$jar" "$destination"
+
+                        if ($LASTEXITCODE -ne 0) {
+                            throw "OCI JAR 전송 실패"
+                        }
+
+                        Write-Host "OCI JAR 전송 성공!"
+
+                        # 3. 원격 배포 스크립트 생성
                         $commands = @(
                             "set -eu",
                             "cd /home/ubuntu",
                             "test -s demo-0.0.1-SNAPSHOT.jar.new",
-                            "sudo -n docker image inspect tarot-app:1.1 > /dev/null",
-                            "sudo -n docker tag tarot-app:1.1 tarot-app:backup",
-                            "cp demo-0.0.1-SNAPSHOT.jar demo-0.0.1-SNAPSHOT.jar.backup",
+                            "sudo -n docker info > /dev/null",
+                            "if sudo -n docker image inspect tarot-app:1.1 > /dev/null 2>&1; then sudo -n docker tag tarot-app:1.1 tarot-app:backup; fi",
+                            "if [ -f demo-0.0.1-SNAPSHOT.jar ]; then cp demo-0.0.1-SNAPSHOT.jar demo-0.0.1-SNAPSHOT.jar.backup; fi",
                             "mv demo-0.0.1-SNAPSHOT.jar.new demo-0.0.1-SNAPSHOT.jar",
                             "sudo -n docker build -t tarot-app:1.1 .",
                             "sudo -n docker compose up -d --no-deps --force-recreate tarot-app",
@@ -179,8 +175,10 @@ pipeline {
                             $utf8NoBom
                         )
 
-                        # SSH 표준 입력으로 파일 내용 전달
-                        $sshCommand = 'ssh -i "{0}" -o BatchMode=yes "{1}@{2}" "bash -se" < "{3}"' -f $keyPath, $env:SSH_USER, $env:OCI_HOST, $scriptPath
+                        # 4. OCI Docker 배포
+                        Write-Host "OCI Docker 배포 시작"
+
+                        $sshCommand = 'ssh -i "{0}" -o BatchMode=yes "{1}" "bash -se" < "{2}"' -f $keyPath, $target, $scriptPath
 
                         cmd.exe /d /c $sshCommand
 
@@ -195,14 +193,13 @@ pipeline {
         }
     }
 
-
-
     post {
         success {
-            echo 'CI 빌드 성공!'
+            echo 'CI/CD 빌드 및 OCI 배포 성공!'
         }
+
         failure {
-            echo 'CI 빌드 실패! 콘솔 로그를 확인하세요.'
+            echo 'CI/CD 빌드 또는 OCI 배포 실패! 콘솔 로그를 확인하세요.'
         }
     }
 }
