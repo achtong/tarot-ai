@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        OCI_HOST = credentials('oci-host')
+    }
+
     options {
         timestamps()
         disableConcurrentBuilds()
@@ -61,11 +65,7 @@ pipeline {
                         credentialsId: 'oci-ssh-key',
                         keyFileVariable: 'SSH_KEY',
                         usernameVariable: 'SSH_USER'
-                    ),
-                     string(
-                        credentialsId: 'oci-host',
-                        variable: 'OCI_HOST'
-                     )
+                    )
                 ]) {
                     powershell '''
                         $ErrorActionPreference = "Stop"
@@ -117,7 +117,7 @@ pipeline {
                             throw "JAR 파일을 찾을 수 없습니다: $jar"
                         }
 
-                        & scp -0 -i $keyPath -o BatchMode=yes $jar "$($env:SSH_USER)@$($env:OCI_HOST):/home/ubuntu/demo-0.0.1-SNAPSHOT.jar.new"
+                        & scp -o -i $keyPath -o BatchMode=yes $jar "$($env:SSH_USER)@$($env:OCI_HOST):/home/ubuntu/demo-0.0.1-SNAPSHOT.jar.new"
 
                         if ($LASTEXITCODE -ne 0) {
                             throw "OCI JAR 전송 실패"
