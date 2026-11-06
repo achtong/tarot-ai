@@ -117,7 +117,7 @@ pipeline {
                             throw "JAR 파일을 찾을 수 없습니다: $jar"
                         }
 
-                        & scp -i $keyPath -o BatchMode=yes $jar "$($env:SSH_USER)@$($env:OCI_HOST):/home/ubuntu/demo-0.0.1-SNAPSHOT.jar.new"
+                        & scp -0 -i $keyPath -o BatchMode=yes $jar "$($env:SSH_USER)@$($env:OCI_HOST):/home/ubuntu/demo-0.0.1-SNAPSHOT.jar.new"
 
                         if ($LASTEXITCODE -ne 0) {
                             throw "OCI JAR 전송 실패"
