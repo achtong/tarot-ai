@@ -61,7 +61,11 @@ pipeline {
                         credentialsId: 'oci-ssh-key',
                         keyFileVariable: 'SSH_KEY',
                         usernameVariable: 'SSH_USER'
-                    )
+                    ),
+                     string(
+                        credentialsId: 'oci-host',
+                        variable: 'OCI_HOST'
+                     )
                 ]) {
                     powershell '''
                         $ErrorActionPreference = "Stop"
