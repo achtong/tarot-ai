@@ -14,7 +14,13 @@ React
 
 쿠폰 발급 API:
 
-POST /api/coupons/{couponId}/issue
+POST /api/coupons/{couponCode}/issue
+
+- 신규 요청: `202 Accepted` (Kafka 비동기 발급 요청 접수)
+- DB 발급 내역 또는 Redis 중복 확인: `409 Conflict`, `COUPON_ALREADY_ISSUED`, "이미 발급받은 쿠폰입니다."
+- 재고 소진: `409 Conflict`, `COUPON_SOLD_OUT`, "쿠폰 재고가 모두 소진되었습니다."
+
+DB 중복은 Redis 재고 차감 전에 기존 발급 내역 조회로 확인한다.
 
 ## Redis
 
